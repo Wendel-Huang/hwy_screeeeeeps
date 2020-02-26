@@ -22,6 +22,7 @@ var rolePickuper=require('role.pickuper')
 var roleHealer=require('role.healer')
 var roleWartransfer=require('role.wartransfer')
 var rolePowertransfer=require('role.powertransfer');
+var roleRepairer=require('role.repairer')
 
 var W2S2=require('W2S2main')
 var E5S2=require('E5S2main')
@@ -278,6 +279,12 @@ module.exports.loop = function () {
         {memory: {role: 'harvesterWORKREP',send: false,workroom:'E5S1',workpoint:2}});
     }
 
+    //spawn roleRepairer
+    if( _.filter(Game.creeps, (creep) => creep.memory.role == 'repairer').length<1){
+        Game.spawns['Spawn1'].spawnCreep([WORK,WORK,WORK,WORK,WORK,CARRY,CARRY,CARRY,CARRY,CARRY,MOVE,MOVE,MOVE,MOVE,MOVE], 'repairer'+Game.time,
+        {memory: {role: 'repairer'}});
+    }
+
     // Memory.mypath=Game.spawns['Spawn1'].pos.findPathTo(Game.flags.middleflag2)
     // Memory.mypath=PathFinder.search(new RoomPosition(21,24,Game.spawns['Spawn1'].pos.roomName),Game.flags.middleflag2).path
     // Memory.mypath2=PathFinder.search(Game.flags.middleflag2.pos,Game.flags.FlagE6S2,{maxOps:10000,range:2}).path
@@ -317,7 +324,7 @@ module.exports.loop = function () {
 
     //临时spawn 建造者
 
-    if(Game.time%10==0){
+    if(Game.time%50==0){
       if(Game.rooms['E5S1'].find(FIND_CONSTRUCTION_SITES).length>0){
         if( _.filter(Game.creeps, (creep) => creep.memory.role == 'builder'&&creep.memory.workroom=='E5S1').length<1){
             Game.spawns['Spawn1'].mySpawnCreep([10,10,10], 'WorkerB'+Game.time,
@@ -421,6 +428,9 @@ module.exports.loop = function () {
         }
         if (creep.memory.role=='transferD') {
             roleTransferD.run(creep);
+        }
+        if (creep.memory.role=='repairer') {
+            roleRepairer.run(creep);
         }
     }
 
