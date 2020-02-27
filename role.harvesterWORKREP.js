@@ -4,7 +4,7 @@ var roleHarvester = {
     run: function(creep) {
         var myflag = Game.flags[creep.memory.workroom+'TSS'+creep.memory.workpoint];
         if(myflag.room){
-            var containers = myflag.room.lookForAt('structure',myflag);            
+            var containers = myflag.room.lookForAt('structure',myflag);
         }else{
             console.log(myflag)
         }
@@ -23,7 +23,7 @@ var roleHarvester = {
                 creep.harvest(source);
                 creep.transfer(links[0], RESOURCE_ENERGY);
             }
-            if(containers[0].structureType==STRUCTURE_CONTAINER){
+            else if(containers[0].structureType==STRUCTURE_CONTAINER){
             //container存在，repair,transfer
                 //判断是否满
                 if(creep.store['energy']<20){
@@ -44,12 +44,12 @@ var roleHarvester = {
                         creep.transfer(containers[0],RESOURCE_ENERGY);
                     }
                 }
-            } 
+            }
         }else{
             //未就位
             creep.moveTo(myflag);
         }
-        
+
 	}
 };
 

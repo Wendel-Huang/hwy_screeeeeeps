@@ -122,11 +122,11 @@ global.sellEnergy=function(roomName){
 
 
 global.processPower=function(){
-  Game.structures['5e1a3abe39f69f6c12edb8bd'].processPower();
+  Game.structures['5e57b999ae4e349a3a4e9002'].processPower();
   //非energy transfer
   var terminal=Game.rooms['E5S1'].terminal;
   if(terminal.store.getUsedCapacity('energy')>95000&&terminal.store.getUsedCapacity('power')>2000){
-    Game.structures['5e1a3abe39f69f6c12edb8bd'].addCenterTransferTask();
+    Game.structures['5e57b999ae4e349a3a4e9002'].addCenterTransferTask();
     // if( _.filter(Game.creeps, (creep) => creep.memory.role == 'transfersmall'&&creep.memory.transferType=='power'&&creep.memory.withdrawroom=='E5S1'&&creep.memory.withdrawcorx==16&&creep.memory.givecorx==20).length<1){
     //     Game.spawns['Spawn1'].mySpawnCreep([0,1,1], 'TS '+Game.time+' E5S1',
     //     {memory: {role: 'transfersmall',withdrawroom:'E5S1',transferType:'power',withdrawcorx:16,withdrawcory:24,givecorx:20,givecory:23}});

@@ -3,8 +3,6 @@ module.exports = {
         var roleHarvester = require(roomname+'role.harvester');
         var roleUpgrader = require(roomname+'role.upgrader');
         var roleBuilder = require(roomname+'role.builder');
-        var roleHarvesterWORKREP = require(roomname+'role.harvesterWORKREP');
-        var roleTransfer=require(roomname+'role.transfer');
 
         var roleTransfersmall=require('role.transfersmall');
 
@@ -12,8 +10,8 @@ module.exports = {
 
         if(Game.spawns['Spawn'+roomname]){
             if(_.filter(Game.creeps, (creep) => creep.memory.role == 'pickuper'&&creep.memory.workroom==roomname).length<1){
-                Game.spawns['Spawn'+roomname].spawnCreep([CARRY,CARRY,CARRY,
-                                                  MOVE,MOVE,MOVE], 'WorkerPickuper'+Game.time,
+                Game.spawns['Spawn'+roomname].spawnCreep([CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,
+                                                  MOVE,MOVE,MOVE,MOVE], 'WorkerPickuper'+Game.time,
                     {memory: {role: 'pickuper',send: false,reachmiddle:1,workroom:roomname}}
                     );
             }
@@ -38,19 +36,19 @@ module.exports = {
 
 
             //采集，运输
-            if( _.filter(Game.creeps, (creep) => creep.memory.role == roomname+'transfer'&&creep.memory.withdrawroom==roomname&&creep.memory.giveroom==roomname&&creep.memory.energypoint==1).length<1){
-                Game.spawns['Spawn'+roomname].mySpawnCreep([0,3,3], 'TS '+Game.time+roomname,
-                {memory: {role: roomname+'transfer',withdrawroom:roomname,giveroom:roomname,energypoint:1}});
-            }
-            if( _.filter(Game.creeps, (creep) => creep.memory.role == roomname+'harvesterWORKREP'&&creep.memory.workroom==roomname&&creep.memory.workpoint==1&&creep.ticksToLive>30).length<1){
+            // if( _.filter(Game.creeps, (creep) => creep.memory.role == roomname+'transfer'&&creep.memory.withdrawroom==roomname&&creep.memory.giveroom==roomname&&creep.memory.energypoint==1).length<1){
+            //     Game.spawns['Spawn'+roomname].mySpawnCreep([0,3,3], 'TS '+Game.time+roomname,
+            //     {memory: {role: roomname+'transfer',withdrawroom:roomname,giveroom:roomname,energypoint:1}});
+            // }
+            if( _.filter(Game.creeps, (creep) => creep.memory.role == 'harvesterWORKREP'&&creep.memory.workroom==roomname&&creep.memory.workpoint==1&&creep.ticksToLive>30).length<1){
                 Game.spawns['Spawn'+roomname].spawnCreep([WORK,WORK,WORK,WORK,WORK,CARRY,MOVE], 'WR'+Game.time+roomname,
-                {memory: {role: roomname+'harvesterWORKREP',send: false,workroom:roomname,workpoint:1}});
+                {memory: {role: 'harvesterWORKREP',send: false,workroom:roomname,workpoint:1}});
             }
 
 
-            if( _.filter(Game.creeps, (creep) => creep.memory.role == roomname+'harvesterWORKREP'&&creep.memory.workroom==roomname&&creep.memory.workpoint==2&&creep.ticksToLive>90).length<1){
-                Game.spawns['Spawn'+roomname].spawnCreep([WORK,WORK,WORK,WORK,WORK,CARRY,MOVE,MOVE,MOVE,MOVE,MOVE], 'WR'+Game.time+roomname,
-                {memory: {role: roomname+'harvesterWORKREP',send: false,workroom:roomname,workpoint:2}});
+            if( _.filter(Game.creeps, (creep) => creep.memory.role == 'harvesterWORKREP'&&creep.memory.workroom==roomname&&creep.memory.workpoint==2&&creep.ticksToLive>25).length<1){
+                Game.spawns['Spawn2'+roomname].spawnCreep([WORK,WORK,WORK,WORK,WORK,CARRY,MOVE], 'WR'+Game.time+roomname,
+                {memory: {role: 'harvesterWORKREP',send: false,workroom:roomname,workpoint:2}});
             }
 
 

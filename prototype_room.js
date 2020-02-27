@@ -12,7 +12,9 @@ Room.prototype.addCenterTask=function(task){
 	}
 	//未提交任务，提交
 	if(!hasTask){
-		console.log(this.name+" push task")
+		let fromStr=Game.getObjectById(task.fromId);
+		let toStr=Game.getObjectById(task.toId);
+		console.log(this.name+" push task "+fromStr.structureType+" to "+toStr.structureType);
 		this.memory.centerTransferTask.push(task);
 	}
 }

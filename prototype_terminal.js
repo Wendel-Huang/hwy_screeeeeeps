@@ -1,7 +1,7 @@
 StructureTerminal.prototype.terStoBalance=function(){
   let terEnergy=Math.max((this.store.energy-50000)*3.6,0);
-  let stoEnergyMin=Math.max(this.room.storage.store.energy+10000,0);
-  let stoEnergyMax=Math.max(this.room.storage.store.energy-10000,0);
+  let stoEnergyMin=Math.max(this.room.storage.store.energy+50000,0);
+  let stoEnergyMax=Math.max(this.room.storage.store.energy-50000,0);
   if(terEnergy>stoEnergyMin){
     let task={
       fromId:this.id,

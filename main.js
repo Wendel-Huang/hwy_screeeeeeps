@@ -141,7 +141,7 @@ module.exports.loop = function () {
     global.sellEnergy('E6S2')
     //market 商品
     // global.sellItem(21,'condensate','E5S1');
-    global.sellItem(13000,'muscle','E6S2');
+    global.sellItem(12000,'muscle','E6S2');
     // const elapsed = Game.cpu.getUsed() - startCpu;
     // console.log('It has used '+elapsed+' CPU time');
 
@@ -224,17 +224,17 @@ module.exports.loop = function () {
     //link To storage
     if( _.filter(Game.creeps, (creep) => creep.memory.role == 'centerTransfer'&&creep.memory.withdrawroom=='E5S1').length<1){
         Game.spawns['Spawn1'].spawnCreep([CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,
-                                            MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE], 'TS '+Game.time+' E5S1',
+                                            MOVE], 'TS '+Game.time+' E5S1',
         {memory: {role: 'centerTransfer',withdrawroom:'E5S1'}});
     }
     if( _.filter(Game.creeps, (creep) => creep.memory.role == 'centerTransfer'&&creep.memory.withdrawroom=='E5S2').length<1){
         Game.spawns['SpawnE5S2'].spawnCreep([CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,
-                                            MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE], 'TS '+Game.time+' E5S2',
+                                            MOVE], 'TS '+Game.time+' E5S2',
         {memory: {role: 'centerTransfer',withdrawroom:'E5S2'}});
     }
     if( _.filter(Game.creeps, (creep) => creep.memory.role == 'centerTransfer'&&creep.memory.withdrawroom=='E6S2').length<1){
         Game.spawns['SpawnE6S2'].spawnCreep([CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,
-                                            MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE], 'TS '+Game.time+' E6S2',
+                                            MOVE], 'TS '+Game.time+' E6S2',
         {memory: {role: 'centerTransfer',withdrawroom:'E6S2'}});
     }
 
@@ -252,10 +252,10 @@ module.exports.loop = function () {
 
 
 
-     //spawn捡起者
+     //spawn捡起者(兼职extension运输)
     if(_.filter(Game.creeps, (creep) => creep.memory.role == 'pickuper'&&creep.memory.workroom=='E5S1').length<1){
-        Game.spawns['Spawn1'].spawnCreep([CARRY,CARRY,CARRY,
-                                          MOVE,MOVE,MOVE], 'WorkerPickuper'+Game.time,
+        Game.spawns['Spawn1'].spawnCreep([CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,
+                                          MOVE,MOVE,MOVE,MOVE], 'WorkerPickuper'+Game.time,
             {memory: {role: 'pickuper',send: false,reachmiddle:1,workroom:'E5S1'}}
             );
     }
@@ -270,10 +270,10 @@ module.exports.loop = function () {
         Game.spawns['Spawn3'].spawnCreep([WORK,WORK,WORK,WORK,WORK,CARRY,MOVE,MOVE], 'WR'+Game.time+' E5S1',
         {memory: {role: 'harvesterWORKREP',send: false,workroom:'E5S1',workpoint:1}});
     }
-    if( _.filter(Game.creeps, (creep) => creep.memory.role == 'transfer'&&creep.memory.withdrawroom=='E5S1'&&creep.memory.energypoint==2).length<1){
-        Game.spawns['Spawn1'].mySpawnCreep([0,4,4], 'TS '+Game.time+' E5S1',
-        {memory: {role: 'transfer',withdrawroom:'E5S1',giveroom:'E5S1',energypoint:2}});
-    }
+    // if( _.filter(Game.creeps, (creep) => creep.memory.role == 'transfer'&&creep.memory.withdrawroom=='E5S1'&&creep.memory.energypoint==2).length<1){
+    //     Game.spawns['Spawn1'].mySpawnCreep([0,4,4], 'TS '+Game.time+' E5S1',
+    //     {memory: {role: 'transfer',withdrawroom:'E5S1',giveroom:'E5S1',energypoint:2}});
+    // }
     if( _.filter(Game.creeps, (creep) => creep.memory.role == 'harvesterWORKREP'&&creep.memory.workroom=='E5S1'&&creep.memory.workpoint==2&&creep.ticksToLive>30).length<1){
         Game.spawns['Spawn1'].spawnCreep([WORK,WORK,WORK,WORK,WORK,CARRY,MOVE,MOVE], 'WR'+Game.time+' E5S1',
         {memory: {role: 'harvesterWORKREP',send: false,workroom:'E5S1',workpoint:2}});
@@ -281,7 +281,9 @@ module.exports.loop = function () {
 
     //spawn roleRepairer
     if( _.filter(Game.creeps, (creep) => creep.memory.role == 'repairer').length<1){
-        Game.spawns['Spawn1'].spawnCreep([WORK,WORK,WORK,WORK,WORK,CARRY,CARRY,CARRY,CARRY,CARRY,MOVE,MOVE,MOVE,MOVE,MOVE], 'repairer'+Game.time,
+        Game.spawns['Spawn1'].spawnCreep([WORK,WORK,WORK,WORK,WORK,WORK,WORK,WORK,WORK,WORK,
+          CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,
+          MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE], 'repairer'+Game.time,
         {memory: {role: 'repairer'}});
     }
 
@@ -482,28 +484,32 @@ module.exports.loop = function () {
         if(mystructure.structureType==STRUCTURE_FACTORY){
           mystructure.work();
         }
+        if(mystructure.structureType==STRUCTURE_LINK){
+            roleLink.run(mystructure);
+        }
     }
 
 
 
+    //
+    // roleLink.run(Game.structures['5e0a04bcc155efd99191d552'],'E5S1')
+    // roleLink.run(Game.structures['5e55feda52c2b202b35a3e2d'],'E5S1')
+    // roleLink.run(Game.structures['5e0995ab91e04fd04b3fda0f'],'E5S2')
+    // roleLink.run(Game.structures['5e0e4cb7e5d0080434df77fc'],'E2S5')
+    // roleLink.run(Game.structures['5e146e4b27eb82101770b51c'],'E2S5')
+    // roleLink.run(Game.structures['5e110f8f39f69f77dbea1841'],'E1S5')
+    // roleLink.run(Game.structures['5e155154c6101b6a0dd39db0'],'W2S8')
+    // roleLink.run(Game.structures['5e1a7c27fb940e273575ec4c'],'E6S2')
+    // roleLink.run(Game.structures['5e1ab44f2d333a942c72eef4'],'E6S2')
 
-    roleLink.run(Game.structures['5e0a04bcc155efd99191d552'],'E5S1')
-    roleLink.run(Game.structures['5e0995ab91e04fd04b3fda0f'],'E5S2')
-    roleLink.run(Game.structures['5e0e4cb7e5d0080434df77fc'],'E2S5')
-    roleLink.run(Game.structures['5e146e4b27eb82101770b51c'],'E2S5')
-    roleLink.run(Game.structures['5e110f8f39f69f77dbea1841'],'E1S5')
-    roleLink.run(Game.structures['5e155154c6101b6a0dd39db0'],'W2S8')
-    roleLink.run(Game.structures['5e1a7c27fb940e273575ec4c'],'E6S2')
-    roleLink.run(Game.structures['5e1ab44f2d333a942c72eef4'],'E6S2')
-
-    var newLinks=[Game.structures['5e021d1df0aef9ed5f1478d3'],Game.structures['5e09a5103e6bf230bcfca5cc'],Game.structures['5e144bbd79557c10f63fa5a2']];
-    for(let linkIndex in newLinks){
-      let link=newLinks[linkIndex];
-      if(link.store.getUsedCapacity('energy')>600){
-        link.pushTask();
-        // console.log('dfasg')
-      }
-    }
+    // var newLinks=[Game.structures['5e021d1df0aef9ed5f1478d3'],Game.structures['5e09a5103e6bf230bcfca5cc'],Game.structures['5e144bbd79557c10f63fa5a2']];
+    // for(let linkIndex in newLinks){
+    //   let link=newLinks[linkIndex];
+    //   if(link.store.getUsedCapacity('energy')>600){
+    //     link.pushTask();
+    //     // console.log('dfasg')
+    //   }
+    // }
 
     if(Game.time%5==0){
       Game.structures["5e06287290a1b10d3c95245e"].terStoBalance();

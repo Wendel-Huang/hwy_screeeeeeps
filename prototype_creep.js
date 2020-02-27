@@ -46,7 +46,7 @@ Creep.prototype.tickRenew2 = function(setTick,spawnName){
 }
 
 Creep.prototype.centerTransfer=function(){
-  if(this.room.memory.centerTransferTask.length){
+  if(this.room.memory.centerTransferTask&&this.room.memory.centerTransferTask.length){
     var fromId=this.room.memory.centerTransferTask[0].fromId;
     var fromStru=Game.getObjectById(fromId);
     var toId=this.room.memory.centerTransferTask[0].toId;
