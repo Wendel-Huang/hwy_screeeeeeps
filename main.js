@@ -470,7 +470,11 @@ module.exports.loop = function () {
       // }
       //正常部分，测试后只保留此
       let pc=Game.powerCreeps[name];
-      pc.work();
+      if(name=="powercreep1"||name=="powercreep4"){
+          pc.steal();
+      }else{
+          pc.work();          
+      }
     }
 
     // Game.structures['5e1acd3b9e776ebd11de5d75'].boostCreep(Game.creeps['Attacker14596520']);

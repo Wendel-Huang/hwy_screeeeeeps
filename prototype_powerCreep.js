@@ -1,3 +1,54 @@
+PowerCreep.prototype.steal=function(){
+    if(this.ticksToLive>0){
+        this.usePower(PWR_GENERATE_OPS);
+        if(this.store.getUsedCapacity()<100){
+          if(this.ticksToLive<4500){
+              if(this.renewSelf()=="noSpawn"){
+                  if(!this.pos.inRangeTo(Game.flags['stealFlag'],1)){
+                    this.moveTo(Game.flags['stealFlag'],{reusePath:300,visualizePathStyle:{}})
+                  }else{
+                    let stealObject=Game.flags['stealFlag'].pos.lookFor(LOOK_STRUCTURES)[0];
+                    this.withdraw(stealObject,"energy");
+                  }
+              }
+          }else{
+              if(!this.pos.inRangeTo(Game.flags['stealFlag'],1)){
+                this.moveTo(Game.flags['stealFlag'],{reusePath:300,visualizePathStyle:{}})
+              }else{
+                let stealObject=Game.flags['stealFlag'].pos.lookFor(LOOK_STRUCTURES)[0];
+                this.withdraw(stealObject,"energy");
+              }
+          }
+        }else{
+          if(!this.pos.inRangeTo(Game.flags['FlagStealBack'],1)){
+            this.moveTo(Game.flags['FlagStealBack'],{reusePath:300,visualizePathStyle:{}})
+          }else{
+            let stealBackObject=Game.flags['FlagStealBack'].pos.lookFor(LOOK_STRUCTURES)[0];
+            for(const resourceType in this.store) {
+                this.transfer(stealBackObject, resourceType);
+            }
+          }
+        }
+    }
+}
+
+PowerCreep.prototype.renewSelf=function(){
+    //renew自己，优先级最高
+    let powerSpawn=this.room.find(FIND_MY_STRUCTURES, {
+        filter: { structureType: STRUCTURE_POWER_SPAWN }
+    })[0];
+    if(powerSpawn){
+        if(this.renew(powerSpawn)==ERR_NOT_IN_RANGE){
+            this.moveTo(powerSpawn);
+        }
+        return 'ok';
+    }else{
+        return 'noSpawn';
+    }
+}
+
+
+
 PowerCreep.prototype.work=function(){
   if(this.ticksToLive>0){
     if(this.ticksToLive<500){
