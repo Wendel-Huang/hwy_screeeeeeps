@@ -48,8 +48,12 @@ var fac2TerMaterial={
 	"E5S1":{
 		// "phlegm":500
 	},
-	"E5S2":{"tissue":50,"extract":100},
-	"E6S2":{"muscle":20},
+	"E5S2":{
+		// "tissue":50,"extract":100
+	},
+	"E6S2":{
+		// "muscle":20
+	},
 }
 
 StructureFactory.prototype.work=function(){

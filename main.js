@@ -440,8 +440,8 @@ module.exports.loop = function () {
 
     for(var name in Game.powerCreeps){
       // let pc=Game.powerCreeps[name];
-      // if(name=="powercreep3"){
-      //   pc.moveTo(new RoomPosition(23,25,'E5S2'))
+      // if(name=="powercreep1"){
+      //   pc.moveTo(new RoomPosition(23,25,'E6S2'))
       // }
       // if(name=="powercreep4"){
       //   pc.moveTo(new RoomPosition(23,25,'E6S2'))
@@ -470,11 +470,7 @@ module.exports.loop = function () {
       // }
       //正常部分，测试后只保留此
       let pc=Game.powerCreeps[name];
-      if(name=="powercreep1"||name=="powercreep4"){
-          pc.steal();
-      }else{
-          pc.work();          
-      }
+      pc.work();
     }
 
     // Game.structures['5e1acd3b9e776ebd11de5d75'].boostCreep(Game.creeps['Attacker14596520']);
@@ -581,6 +577,7 @@ module.exports.loop = function () {
       Memory.stats['storage.condensate'] = Game.rooms['E5S1'].storage.store['condensate']
       Memory.stats['terminal.energyE5S1'] = Game.rooms['E5S1'].terminal.store['energy']
       Memory.stats['terminal.energyE5S2'] = Game.rooms['E5S2'].terminal.store['energy']
+      Memory.stats['terminal.energyE6S2'] = Game.rooms['E6S2'].terminal.store['energy']
       Memory.stats['terminal.energyE1S5'] = Game.rooms['E1S5'].terminal.store['energy']
       Memory.stats['terminal.energyE2S5'] = Game.rooms['E2S5'].terminal.store['energy']
       Memory.stats['terminal.energyW2S2'] = Game.rooms['W2S2'].terminal.store['energy']

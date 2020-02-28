@@ -11,7 +11,7 @@ module.exports = {
                     }
                 }
                 else if(flags[0].name==(link.room.name+"LD")){
-                    if(link.store.getUsedCapacity('energy')>600){
+                    if(link.store.getUsedCapacity('energy')>400){
                         link.pushTask();
                     }
                 }

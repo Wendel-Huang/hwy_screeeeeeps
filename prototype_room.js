@@ -27,12 +27,37 @@ Room.prototype.updateCenterTask=function(transferAmount){
     }
 }
 
+Room.prototype.checkSourceEffect=function(){
+	if(!this.memory["sourceIds"]){
+		this.memory["sourceIds"]=[];
+		let sources=this.find(FIND_SOURCES);
+		for(let i=0;i<sources.length;i++){
+			this.memory["sourceIds"].push(sources[i].id);
+		}
+		if(!Memory.powerTaskList){
+			Memory.powerTaskList={};
+		}
+		if(!Memory.powerTaskList[this.name]){
+			Memory.powerTaskList[this.name]=["controllerNeedEnable"];
+		}
+	}
+	for(let i=0;i<this.memory["sourceIds"].length;i++){
+		let id=this.memory["sourceIds"][i];
+	    let source=Game.getObjectById(id);
+		if(!source.effects||!source.effects[0]||source.effects[0].ticksRemaining<30){
+			if(Memory.powerTaskList[this.name].indexOf("sourceNeedOperate"+i)==-1){
+				Memory.powerTaskList[this.name].push("sourceNeedOperate"+i);
+				console.log("pushTask sourceNeedOperate"+i)
+			}
+		}
+	}
+}
 
 StructureLink.prototype.pushTask=function(){
 	var task={
 		fromId:this.id,
 		toId:this.room.terminal.id,
-		amount:600,
+		amount:this.store.energy,
 		resourceType:'energy'
 	};
 	this.room.addCenterTask(task);
