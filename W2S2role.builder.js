@@ -1,4 +1,4 @@
-// 
+//
 
 
 var roleBuilder = {
@@ -27,10 +27,10 @@ var roleBuilder = {
                 creep.say('build');
             }
 
-            const storage=creep.room.storage;
+            const storage=creep.room.terminal;
             var target = creep.pos.findClosestByRange(FIND_CONSTRUCTION_SITES);
             if(creep.memory.building) {
-                
+
                 if(target) {
                     //有未build好的
                     if(creep.build(target) == ERR_NOT_IN_RANGE) {
@@ -57,16 +57,16 @@ var roleBuilder = {
                 // });
                 // if(creep.withdraw(targets[0], RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
                 //     creep.moveTo(targets[0]);
-                // }  
+                // }
 
                 // var source = creep.pos.findClosestByPath(FIND_SOURCES);
-                
-            
+
+
 
                 if(storage){
                     if(creep.withdraw(storage, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
                         creep.moveTo(storage);
-                    } 
+                    }
                 }
             }
         }
@@ -74,7 +74,7 @@ var roleBuilder = {
         //    console.log(creep.moveTo(Game.flags['Flag'+creep.memory.workroom]));
         //    if(creep.pos.roomname==Game.flags['Flag'+creep.memory.workroom].pos.roomname && creep.pos.x==Game.flags['Flag'+creep.memory.workroom].pos.x && creep.pos.y==Game.flags['Flag'+creep.memory.workroom].pos.y) creep.memory.reachflag=1;
         // }else{
-            
+
         // }
     }
 };

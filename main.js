@@ -20,9 +20,12 @@ var startup1=require('startup1')
 var startup2=require('startup2')
 var rolePickuper=require('role.pickuper')
 var roleHealer=require('role.healer')
+var roleRangedAttacker=require('role.attacker_ranged')
+var roleLoneWolf=require('role.loneWolf')
 var roleWartransfer=require('role.wartransfer')
 var rolePowertransfer=require('role.powertransfer');
 var roleRepairer=require('role.repairer')
+var roleCenterTransfer=require('role.centerTransfer')
 
 var W2S2=require('W2S2main')
 var E5S2=require('E5S2main')
@@ -32,13 +35,14 @@ var E6S2=require('E6S2main')
 var W2S8=require('W2S8main')
 
 require('prototype_creep')
-require('prototype_Memory')
 require('prototype_globalFunction')
 require('prototype_room')
 require('prototype_factory')
 require('prototype_powerCreep')
 require('prototype_powerSpawn')
 require('prototype_terminal')
+require('prototype_lab')
+require('structureCache')
 
 // let actionCounter = require('actionCounter')
 // actionCounter.warpActions();
@@ -53,9 +57,15 @@ require('prototype_terminal')
 // }
 
 //observer
-var roomArray=['E0N0','E1N0','E2N0','E3N0','E4N0','E5N0','E6N0','E7N0','E8N0','E9N0','E10N0','E0S0','E1S0','E2S0','E3S0','E4S0','E5S0','E6S0','E7S0','E8S0','E9S0','E10S0','E10S1','E10S2'];
+var roomArray=['E0N0','E1N0','E2N0','E3N0','E4N0','E5N0','E6N0','E7N0','E8N0','E9N0','E10N0','E0S0','E1S0','E2S0','E3S0','E4S0','E5S0','E6S0','E7S0','E8S0','E9S0','E10S0','E10S1','E10S2'
+,'E0S1','E0S2','E0S3','E0S4','E0S5','E0S6','E0S7','E0S8','E0S9','W0S1','W0S2','W0S3','W0S4','W0S5','W0S6','W0S7','W0S8','W0S9'
+,'W4N0','W3N0','W2N0','W4S0','W3S0','W2S0'];
+var roomArrayE5S1=['E0N0','E1N0','E2N0','E3N0','E4N0','E5N0','E6N0','E7N0','E8N0','E9N0','E10N0','E0S0','E1S0','E2S0','E3S0','E4S0','E5S0','E6S0','E7S0','E8S0','E9S0','E10S0','E10S1','E10S2'];
+var roomArrayE1S5=['E0S1','E0S2','E0S3','E0S4','E0S5','E0S6','E0S7','E0S8','E0S9','W0S1','W0S2','W0S3','W0S4','W0S5','W0S6','W0S7','W0S8','W0S9'];
+var roomArrayW2S2=['W4N0','W3N0','W2N0','W4S0','W3S0','W2S0'];
 
-
+if(!Memory.factory) Memory.factory={};
+if(!Memory.share) Memory.share={};
 
 module.exports.loop = function () {
     startup1.run('W3S3')
@@ -141,7 +151,8 @@ module.exports.loop = function () {
     global.sellEnergy('E6S2')
     //market 商品
     // global.sellItem(21,'condensate','E5S1');
-    global.sellItem(12000,'muscle','E6S2');
+    global.sellItem(14000,'muscle','E6S2');
+    global.sellItem(7500,'spirit','E6S2');
     // const elapsed = Game.cpu.getUsed() - startCpu;
     // console.log('It has used '+elapsed+' CPU time');
 
@@ -156,6 +167,9 @@ module.exports.loop = function () {
         }
     }
 
+    //一键买低于某价格的resource
+    // buyItemUnderPrice('XLHO2',2.7,'E5S1')
+
     //market
     var ordersPower=Game.market.getAllOrders({type: ORDER_SELL, resourceType: 'power'});
     var lowI=0;
@@ -167,37 +181,45 @@ module.exports.loop = function () {
         }
     }
     // console.log(ordersPower[lowI].price)
-    if(Game.rooms['E5S1'].terminal.store.power<2000&&lowPrice<=2.5){
+    if(Game.rooms['E5S1'].terminal.store.power<2000&&lowPrice<=3.5){
         Game.market.deal(ordersPower[lowI].id, ordersPower[lowI].amount, "E5S1");
     }
-    if(Game.rooms['E5S1'].terminal.store.power<10000&&lowPrice<=2){
+    if(Game.rooms['E5S1'].terminal.store.power<10000&&lowPrice<=3){
         Game.market.deal(ordersPower[lowI].id, ordersPower[lowI].amount, "E5S1");
     }
-    if(Game.rooms['E5S1'].terminal.store.power<30000&&lowPrice<=1.5){
+    if(Game.rooms['E5S1'].terminal.store.power<30000&&lowPrice<=2.5){
         Game.market.deal(ordersPower[lowI].id, ordersPower[lowI].amount, "E5S1");
     }
-    if(Game.rooms['E5S1'].terminal.store.power<100000&&lowPrice<=1){
+    if(Game.rooms['E5S1'].terminal.store.power<100000&&lowPrice<=2){
         Game.market.deal(ordersPower[lowI].id, ordersPower[lowI].amount, "E5S1");
     }
 
+    //E6S2 E5S2 power
+    if(Game.rooms.E6S2.terminal.store.power<2000&&Game.rooms.E5S1.terminal.store.power>2000){
+        Game.rooms.E5S1.terminal.send("power",1000,"E6S2");
+    }
+    if(Game.rooms.E5S2.terminal.store.power<2000&&Game.rooms.E5S1.terminal.store.power>2000){
+        Game.rooms.E5S1.terminal.send("power",1000,"E5S2");
+    }
+
     for(let i=0;i<roomArray.length;i++){
-      if(!(Memory.roomAttacked[roomArray[i]]&&Memory.roomAttacked[roomArray[i]].creepAttacked)){
+      if(!Memory.roomAttacked[roomArray[i]]){
         if(Game.flags['Deposit'+roomArray[i]]){
-            //spawn deposit 运输者
-            if(_.filter(Game.creeps, (creep) => creep.memory.role == 'transferD'&&creep.memory.withdrawroom==roomArray[i]).length<1){
-                Game.spawns['Spawn3'].mySpawnCreep([0,4,4], 'TS '+Game.time+roomArray[i],
-                {memory: {role: 'transferD',withdrawroom:roomArray[i],giveroom:'E5S1'}});
-                console.log(roomArray[i]+'inTspawn')
+            if(roomArrayE1S5.indexOf(roomArray[i])!=-1){
+                spawnDepositWorker(roomArray[i],'E1S5','SpawnE1S5');
             }
-            //spawn deposit 采集者
-            if(_.filter(Game.creeps, (creep) => creep.memory.role == 'harvesterD'&&creep.memory.workroom==roomArray[i]).length<1){
-              Game.spawns['Spawn3'].mySpawnCreep([20,4,20], 'WorkerHD'+Game.time+roomArray[i],
-              {memory: {role: 'harvesterD',send: false,workroom:roomArray[i]}});
-              console.log(roomArray[i]+'inHspawn')
+            else if(roomArrayE5S1.indexOf(roomArray[i])!=-1){
+                spawnDepositWorker(roomArray[i],'E5S1','Spawn3');
+            }
+            else if(roomArrayW2S2.indexOf(roomArray[i])!=-1){
+                spawnDepositWorker(roomArray[i],'W2S2','SpawnW2S2');
             }
         }
       }
     }
+
+
+
 
 
 
@@ -224,19 +246,11 @@ module.exports.loop = function () {
     //link To storage
     if( _.filter(Game.creeps, (creep) => creep.memory.role == 'centerTransfer'&&creep.memory.withdrawroom=='E5S1').length<1){
         Game.spawns['Spawn1'].spawnCreep([CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,
-                                            MOVE], 'TS '+Game.time+' E5S1',
+                                            MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE], 'TS '+Game.time+' E5S1',
         {memory: {role: 'centerTransfer',withdrawroom:'E5S1'}});
     }
-    if( _.filter(Game.creeps, (creep) => creep.memory.role == 'centerTransfer'&&creep.memory.withdrawroom=='E5S2').length<1){
-        Game.spawns['SpawnE5S2'].spawnCreep([CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,
-                                            MOVE], 'TS '+Game.time+' E5S2',
-        {memory: {role: 'centerTransfer',withdrawroom:'E5S2'}});
-    }
-    if( _.filter(Game.creeps, (creep) => creep.memory.role == 'centerTransfer'&&creep.memory.withdrawroom=='E6S2').length<1){
-        Game.spawns['SpawnE6S2'].spawnCreep([CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,
-                                            MOVE], 'TS '+Game.time+' E6S2',
-        {memory: {role: 'centerTransfer',withdrawroom:'E6S2'}});
-    }
+
+
 
 
     // if( _.filter(Game.creeps, (creep) => creep.memory.role == 'transfersmall'&&creep.memory.withdrawroom=='E5S1'&&creep.memory.withdrawcorx==16&&creep.memory.givecorx==14).length<1){
@@ -280,12 +294,21 @@ module.exports.loop = function () {
     }
 
     //spawn roleRepairer
-    if( _.filter(Game.creeps, (creep) => creep.memory.role == 'repairer').length<1){
+    if( _.filter(Game.creeps, (creep) => creep.memory.role == 'repairer'&&creep.memory.workroom=='E5S1').length<1){
         Game.spawns['Spawn1'].spawnCreep([WORK,WORK,WORK,WORK,WORK,WORK,WORK,WORK,WORK,WORK,
           CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,
           MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE], 'repairer'+Game.time,
-        {memory: {role: 'repairer'}});
+        {memory: {role: 'repairer',workroom:'E5S1'}});
     }
+
+    //spawn loneWolf
+    // if( _.filter(Game.creeps, (creep) => creep.memory.role == 'loneWolf').length<1){
+    //     Game.spawns['Spawn1'].spawnCreep([TOUGH,TOUGH,TOUGH,TOUGH,TOUGH,TOUGH,TOUGH,TOUGH,TOUGH,TOUGH,TOUGH,TOUGH,
+    //       RANGED_ATTACK,RANGED_ATTACK,RANGED_ATTACK,RANGED_ATTACK,RANGED_ATTACK,
+    //       MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,
+    //       HEAL,HEAL,HEAL,HEAL,HEAL,HEAL,HEAL,HEAL,HEAL,HEAL,HEAL,HEAL,HEAL,HEAL,HEAL,HEAL,HEAL,HEAL,HEAL,HEAL,HEAL,HEAL,HEAL], 'loneWolf'+Game.time,
+    //     {memory: {role: 'loneWolf',needBoost:true}});
+    // }
 
     // Memory.mypath=Game.spawns['Spawn1'].pos.findPathTo(Game.flags.middleflag2)
     // Memory.mypath=PathFinder.search(new RoomPosition(21,24,Game.spawns['Spawn1'].pos.roomName),Game.flags.middleflag2).path
@@ -359,7 +382,9 @@ module.exports.loop = function () {
 
 
 
-    global.processPower();
+    Game.structures['5e57b999ae4e349a3a4e9002'].myProcessPower();
+    Game.structures['5e4a43ced27a6f00dd9d09c0'].myProcessPower();
+    Game.structures['5e3b57de30e4a2c641a9ebc8'].myProcessPower();
 
 
     for(var name in Game.creeps) {
@@ -367,76 +392,111 @@ module.exports.loop = function () {
         if(creep.memory.role == 'upgrader') {
             roleUpgrader.run(creep);
         }
-        if(creep.memory.role == 'upgradersmall') {
+        else if(creep.memory.role == 'upgradersmall') {
             roleUpgradersmall.run(creep);
         }
-        if(creep.memory.role == 'builder') {
+        else if(creep.memory.role == 'builder') {
             roleBuilder.run(creep);
         }
-        if(creep.memory.role == 'spawnbuilder') {
+        else if(creep.memory.role == 'spawnbuilder') {
             roleSpawnBuilder.run(creep);
         }
-        if(creep.memory.role == 'harvesterWORKREP') {
+        else if(creep.memory.role == 'harvesterWORKREP') {
             roleHarvesterWORKREP.run(creep);
         }
-        if (creep.memory.role=='transfer') {
+        else if (creep.memory.role=='transfer') {
             roleTransfer.run(creep);
         }
-        if (creep.memory.role=='powertransfer') {
+        else if (creep.memory.role=='powertransfer') {
             rolePowertransfer.run(creep);
         }
-        if (creep.memory.role=='transfersmall') {
+        else if (creep.memory.role=='transfersmall') {
             roleTransfersmall.run(creep);
         }
-        if (creep.memory.role=='centerTransfer') {
+        else if (creep.memory.role=='centerTransfer') {
             if(creep.ticksToLive<80&&creep.store.getUsedCapacity()==0){
                 creep.suicide();
             }else{
-                creep.centerTransfer();
+                roleCenterTransfer.run(creep);
+                // creep.centerTransfer();
             }
 
         }
-        if (creep.memory.role=='claimer') {
+        else if (creep.memory.role=='claimer') {
             roleClaimer.run(creep);
         }
-        if (creep.memory.role=='claimerReal') {
+        else if (creep.memory.role=='claimerReal') {
             roleClaimerReal.run(creep);
         }
-        if(creep.memory.role == 'attacker') {
+        else if(creep.memory.role == 'attacker') {
             roleAttacker.run(creep);
             // creep.heal(creep);
 
         }
-        if(creep.memory.role == 'healer') {
+        else if(creep.memory.role == 'healer') {
             roleHealer.run(creep);
         }
-        if (creep.memory.role=='mineralWORKREP') {
+        else if(creep.memory.role == 'rangedAttacker') {
+            roleRangedAttacker.run(creep);
+        }
+        else if(creep.memory.role == 'loneWolf') {
+            roleLoneWolf.run(creep);
+        }
+        else if (creep.memory.role=='mineralWORKREP') {
             roleMineralWORKREP.run(creep);
         }
-        if (creep.memory.role=='mineralTransfer') {
+        else if (creep.memory.role=='mineralTransfer') {
             roleMineralTransfer.run(creep);
         }
-        if (creep.memory.role=='pickuper') {
+        else if (creep.memory.role=='pickuper') {
             rolePickuper.run(creep);
         }
-        if (creep.memory.role=='wartransfer') {
+        else if (creep.memory.role=='wartransfer') {
             roleWartransfer.run(creep);
         }
-        if(creep.memory.role == 'harvester') {
+        else if(creep.memory.role == 'harvester') {
             roleHarvester.run(creep);
         }
-        if(creep.memory.role == 'harvesterD') {
+        else if(creep.memory.role == 'harvesterD') {
             roleHarvesterD.run(creep);
         }
-        if (creep.memory.role=='transferD') {
+        else if (creep.memory.role=='transferD') {
             roleTransferD.run(creep);
         }
-        if (creep.memory.role=='repairer') {
+        else if (creep.memory.role=='repairer') {
             roleRepairer.run(creep);
         }
     }
 
     // Game.structures['5e113c037b3e97757dff5fe5'].work();
+
+
+    for(var id in Game.structures){
+        var mystructure=Game.structures[id];
+        if(mystructure.structureType==STRUCTURE_TOWER){
+            roleTower.run(mystructure);
+        }
+        else if(mystructure.structureType==STRUCTURE_FACTORY){
+          mystructure.work();
+          // else if(mystructure.room.name=='E6S2'){
+          //     mystructure.prepare("muscle");
+          // }
+        }
+        else if(mystructure.structureType==STRUCTURE_LINK){
+            roleLink.run(mystructure);
+        }
+        else if(mystructure.structureType==STRUCTURE_TERMINAL){
+            mystructure.handleFacComponentTask();
+            mystructure.handleShare();
+            if(Game.time%5==0){
+              mystructure.terStoBalance();
+            }
+        }
+        // else if(mystructure.structureType==STRUCTURE_LAB){
+        //     // mystructure.getBoostResource();
+        //     mystructure.myBoostCreep();
+        // }
+    }
 
     for(var name in Game.powerCreeps){
       // let pc=Game.powerCreeps[name];
@@ -476,18 +536,6 @@ module.exports.loop = function () {
     // Game.structures['5e1acd3b9e776ebd11de5d75'].boostCreep(Game.creeps['Attacker14596520']);
     // Game.spawns['SpawnW2S8'].renewCreep(Game.creeps['Attacker14596520']);
 
-    for(var id in Game.structures){
-        var mystructure=Game.structures[id];
-        if(mystructure.structureType==STRUCTURE_TOWER){
-            roleTower.run(mystructure);
-        }
-        if(mystructure.structureType==STRUCTURE_FACTORY){
-          mystructure.work();
-        }
-        if(mystructure.structureType==STRUCTURE_LINK){
-            roleLink.run(mystructure);
-        }
-    }
 
 
 
@@ -511,11 +559,7 @@ module.exports.loop = function () {
     //   }
     // }
 
-    if(Game.time%5==0){
-      Game.structures["5e06287290a1b10d3c95245e"].terStoBalance();
-      Game.structures["5e0dd719b012ba0459ae86c6"].terStoBalance();
-      Game.structures["5e190420cd7df7c7aedd65a7"].terStoBalance();
-    }
+
 
 
 
@@ -553,38 +597,48 @@ module.exports.loop = function () {
     global.observeRoom(roomArray);
     // actionCounter.save(1500);
     // console.log(actionCounter.ratio())
-    if(Game.time%60==0){
-      Memory.stats['cpu.getUsed'] = Game.cpu.getUsed()
-      Memory.stats['cpu.bucket'] = Game.cpu.bucket
-      Memory.stats['control.process'] = Game.spawns['Spawn1'].room.controller.progress
-      Memory.stats['control.processW2S2'] = Game.spawns['SpawnW2S2'].room.controller.progress
-      Memory.stats['control.processE1S5'] = Game.spawns['SpawnE1S5'].room.controller.progress
-      Memory.stats['control.processE2S5'] = Game.spawns['SpawnE2S5'].room.controller.progress
-      Memory.stats['control.processE5S2'] = Game.spawns['SpawnE5S2'].room.controller.progress
-      Memory.stats['control.processE6S2'] = Game.spawns['SpawnE6S2'].room.controller.progress
-      Memory.stats['control.processW2S8'] = Game.spawns['SpawnW2S8'].room.controller.progress
-      Memory.stats['control.gcl'] = Game.gcl.progress
-      Memory.stats['creeplength.length'] = Object.keys(Game.creeps).length
-      Memory.stats['storage.energy'] = Game.rooms['E5S1'].storage.store['energy']
-      Memory.stats['storage.energyE5S2'] = Game.rooms['E5S2'].storage.store['energy']
-      Memory.stats['storage.energyW2S2'] = Game.rooms['W2S2'].storage.store['energy']
-      Memory.stats['storage.energyE2S5'] = Game.rooms['E2S5'].storage.store['energy']
-      Memory.stats['storage.energyE1S5'] = Game.rooms['E1S5'].storage.store['energy']
-      Memory.stats['storage.energyE6S2'] = Game.rooms['E6S2'].storage.store['energy']
-      Memory.stats['terminal.mistE5S1'] = Game.rooms['E5S1'].terminal.store['mist']
-      Memory.stats['terminal.biomassE5S1'] = Game.rooms['E5S1'].terminal.store['biomass']
-      Memory.stats['storage.cell'] = Game.rooms['E5S1'].storage.store['cell']
-      Memory.stats['storage.condensate'] = Game.rooms['E5S1'].storage.store['condensate']
-      Memory.stats['terminal.energyE5S1'] = Game.rooms['E5S1'].terminal.store['energy']
-      Memory.stats['terminal.energyE5S2'] = Game.rooms['E5S2'].terminal.store['energy']
-      Memory.stats['terminal.energyE6S2'] = Game.rooms['E6S2'].terminal.store['energy']
-      Memory.stats['terminal.energyE1S5'] = Game.rooms['E1S5'].terminal.store['energy']
-      Memory.stats['terminal.energyE2S5'] = Game.rooms['E2S5'].terminal.store['energy']
-      Memory.stats['terminal.energyW2S2'] = Game.rooms['W2S2'].terminal.store['energy']
-      Memory.stats['terminal.energyW2S8'] = Game.rooms['W2S8'].terminal.store['energy']
+    if(Game.time%20==0){
+        //hardcode 非主房送deposit
+        Game.rooms['E1S5'].terminal.sendWhenReady('biomass',1000,'E5S1');
+        Game.rooms['E1S5'].terminal.sendWhenReady('metal',1000,'E5S1');
+        Game.rooms['W2S2'].terminal.sendWhenReady('silicon',1000,'E5S1');
+        Game.rooms['W2S2'].terminal.sendWhenReady('metal',1000,'E5S1');
 
-      Memory.stats['terminal.power'] = Game.rooms['E5S1'].terminal.store['power']
+        Memory.stats['cpu.getUsed'] = Game.cpu.getUsed()
+        Memory.stats['cpu.bucket'] = Game.cpu.bucket
+        Memory.stats['control.process'] = Game.rooms["E5S1"].controller.progress
+        Memory.stats['control.processW2S2'] = Game.rooms["W2S2"].controller.progress
+        Memory.stats['control.processE1S5'] = Game.rooms["E1S5"].controller.progress
+        Memory.stats['control.processE2S5'] = Game.rooms["E2S5"].controller.progress
+        Memory.stats['control.processE5S2'] = Game.rooms["E5S2"].controller.progress
+        Memory.stats['control.processE6S2'] = Game.rooms["E6S2"].controller.progress
+        Memory.stats['control.processW2S8'] = Game.rooms["W2S8"].controller.progress
+        Memory.stats['control.gcl'] = Game.gcl.progress
+        Memory.stats['creeplength.length'] = Object.keys(Game.creeps).length
+        Memory.stats['storage.energy'] = Game.rooms['E5S1'].storage.store['energy']
+        Memory.stats['storage.energyE5S2'] = Game.rooms['E5S2'].storage.store['energy']
+        Memory.stats['storage.energyW2S2'] = Game.rooms['W2S2'].storage.store['energy']
+        Memory.stats['storage.energyE2S5'] = Game.rooms['E2S5'].storage.store['energy']
+        Memory.stats['storage.energyE1S5'] = Game.rooms['E1S5'].storage.store['energy']
+        Memory.stats['storage.energyE6S2'] = Game.rooms['E6S2'].storage.store['energy']
+        Memory.stats['terminal.mistE5S1'] = Game.rooms['E5S1'].terminal.store['mist']
+        Memory.stats['terminal.biomassE5S1'] = Game.rooms['E5S1'].terminal.store['biomass']
+        Memory.stats['terminal.siliconE5S1'] = Game.rooms['E5S1'].terminal.store['silicon']
+        Memory.stats['terminal.metalE5S1'] = Game.rooms['E5S1'].terminal.store['metal']
+        Memory.stats['storage.cell'] = Game.rooms['E5S1'].storage.store['cell']
+        Memory.stats['storage.condensate'] = Game.rooms['E5S1'].storage.store['condensate']
+        Memory.stats['storage.wire'] = Game.rooms['E5S1'].storage.store['wire']
+        Memory.stats['storage.alloy'] = Game.rooms['E5S1'].storage.store['alloy']
+        Memory.stats['terminal.energyE5S1'] = Game.rooms['E5S1'].terminal.store['energy']
+        Memory.stats['terminal.energyE5S2'] = Game.rooms['E5S2'].terminal.store['energy']
+        Memory.stats['terminal.energyE6S2'] = Game.rooms['E6S2'].terminal.store['energy']
+        Memory.stats['terminal.energyE1S5'] = Game.rooms['E1S5'].terminal.store['energy']
+        Memory.stats['terminal.energyE2S5'] = Game.rooms['E2S5'].terminal.store['energy']
+        Memory.stats['terminal.energyW2S2'] = Game.rooms['W2S2'].terminal.store['energy']
+        Memory.stats['terminal.energyW2S8'] = Game.rooms['W2S8'].terminal.store['energy']
 
-      Memory.stats['credits'] = Game.market.credits;
+        Memory.stats['terminal.power'] = Game.rooms['E5S1'].terminal.store['power']
+
+        Memory.stats['credits'] = Game.market.credits;
     }
 }

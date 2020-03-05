@@ -3,7 +3,6 @@ var roleHarvester = {
         // creep.memory.workroom='E5S1'
         if(creep.hits<creep.hitsMax){
           Memory.roomAttacked[creep.memory.workroom]={
-            creepAttacked:true,
             creepAttackedTimer:10000
           };
         }

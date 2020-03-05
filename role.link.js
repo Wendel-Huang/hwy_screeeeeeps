@@ -21,3 +21,14 @@ module.exports = {
         }
     }
 };
+
+
+StructureLink.prototype.pushTask=function(){
+	var task={
+		fromId:this.id,
+		toId:this.room.terminal.id,
+		amount:this.store.energy,
+		resourceType:'energy'
+	};
+	this.room.addCenterTask(task);
+}

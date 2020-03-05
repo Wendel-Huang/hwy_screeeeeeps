@@ -95,7 +95,7 @@ PowerCreep.prototype.work=function(){
           if(returnValue==ERR_NOT_IN_RANGE){
             this.moveTo(factory)
           }else if(returnValue==OK){
-            Memory.powerTaskList[this.room.name].shift();
+              console.log(Memory.powerTaskList[this.room.name].shift());
           }
         }else{
           let terminal=this.room.terminal;

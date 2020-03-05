@@ -51,6 +51,12 @@ module.exports = {
                 {memory: {role: 'harvesterWORKREP',send: false,workroom:roomname,workpoint:2}});
             }
 
+            if( _.filter(Game.creeps, (creep) => creep.memory.role == 'centerTransfer'&&creep.memory.withdrawroom=='E5S2').length<1){
+                Game.spawns['SpawnE5S2'].spawnCreep([CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,
+                                                    MOVE], 'TS '+Game.time+' E5S2',
+                {memory: {role: 'centerTransfer',withdrawroom:'E5S2'}});
+            }
+
 
 
             //重启作用harvester

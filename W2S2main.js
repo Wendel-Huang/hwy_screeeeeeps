@@ -18,7 +18,7 @@ module.exports = {
 
             //升级
             if(_.filter(Game.creeps, (creep) => creep.memory.role == roomname+'upgrader'&&creep.memory.workroom==roomname).length<1){
-                Game.spawns['Spawn'+roomname].mySpawnCreep([15,1,2], 'WorkerU'+Game.time,
+                Game.spawns['Spawn'+roomname].mySpawnCreep([5,1,2], 'WorkerU'+Game.time,
                     {memory: {role: roomname+'upgrader',reachmiddle: 1,upgrading: false,energypoint:0,workroom:roomname}}
                     );
             }

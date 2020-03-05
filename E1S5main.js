@@ -36,20 +36,23 @@ module.exports = {
             //     {memory: {role: 'transfersmall',withdrawroom:roomname,withdrawcorx:23,withdrawcory:32,givecorx:21,givecory:32},directions:[RIGHT]});
             // }
 
-            if( _.filter(Game.creeps, (creep) => creep.memory.role == 'transfersmall'&&creep.memory.withdrawroom==roomname).length<1){
-                Game.spawns['Spawn'+roomname].spawnCreep([CARRY], 'TS '+Game.time+' E1S5',
-                {memory: {role: 'transfersmall',withdrawroom:roomname,withdrawcorx:23,withdrawcory:32,givecorx:23,givecory:33},directions:[RIGHT]});
-            }
 
-            // if(_.filter(Game.creeps, (creep) => creep.memory.role == roomname+'builder'&&creep.memory.workroom==roomname).length<1){
-            //     Game.spawns['Spawn'+roomname].mySpawnCreep([4,4,4], 'WorkerB'+Game.time,
-            //     {memory: {role: roomname+'builder',building: false,workroom:roomname,reachmiddle:0}});
-            // }
+
+
+            //建造
+            if(Game.time%100==0){
+              if(Game.rooms[roomname].find(FIND_CONSTRUCTION_SITES).length>0){
+                if(_.filter(Game.creeps, (creep) => creep.memory.role == roomname+'builder'&&creep.memory.workroom==roomname).length<1){
+                  Game.spawns['Spawn'+roomname].mySpawnCreep([10,10,10], 'WorkerB'+Game.time,
+                  {memory: {role: roomname+'builder',building: false,workroom:roomname,reachmiddle:0}});
+                }
+              }
+            }
 
 
             //升级
             if(_.filter(Game.creeps, (creep) => creep.memory.role == roomname+'upgrader'&&creep.memory.workroom==roomname).length<1){
-                Game.spawns['Spawn'+roomname].mySpawnCreep([17,1,0], 'WorkerU'+Game.time,
+                Game.spawns['Spawn'+roomname].mySpawnCreep([10,1,0], 'WorkerU'+Game.time,
                     {memory: {role: roomname+'upgrader',reachmiddle: 1,upgrading: false,energypoint:0,workroom:roomname},directions:[LEFT]}
                     );
             }
@@ -58,7 +61,7 @@ module.exports = {
             //采集，运输
             if( _.filter(Game.creeps, (creep) => creep.memory.role == roomname+'harvesterWORKREP'&&creep.memory.workroom==roomname&&creep.memory.workpoint==1).length<1){
                 Game.spawns['Spawn'+roomname].spawnCreep([WORK,WORK,WORK,WORK,WORK,CARRY,MOVE], 'WR'+Game.time+roomname,
-                {memory: {role: roomname+'harvesterWORKREP',send: false,workroom:roomname,workpoint:1},directions:[TOP_RIGHT]});
+                {memory: {role: roomname+'harvesterWORKREP',send: false,workroom:roomname,workpoint:1},directions:[TOP_RIGHT,TOP_LEFT]});
             }
 
 
@@ -69,6 +72,13 @@ module.exports = {
             if( _.filter(Game.creeps, (creep) => creep.memory.role == roomname+'harvesterWORKREP'&&creep.memory.workroom==roomname&&creep.memory.workpoint==2&&creep.ticksToLive>80).length<1){
                 Game.spawns['Spawn'+roomname].spawnCreep([WORK,WORK,WORK,WORK,WORK,CARRY,MOVE,MOVE,MOVE,MOVE,MOVE], 'WR'+Game.time+roomname,
                 {memory: {role: roomname+'harvesterWORKREP',send: false,workroom:roomname,workpoint:2}});
+            }
+
+
+            if( _.filter(Game.creeps, (creep) => creep.memory.role == 'centerTransfer'&&creep.memory.withdrawroom=='E1S5').length<1){
+                Game.spawns['SpawnE1S5'].spawnCreep([CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,
+                                                    MOVE], 'TS '+Game.time+' E1S5',
+                {memory: {role: 'centerTransfer',withdrawroom:'E1S5'},directions:[RIGHT,BOTTOM]});
             }
 
 

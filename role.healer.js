@@ -1,11 +1,11 @@
 var roleHealer = {
-    run: function(creep) { 
+    run: function(creep) {
         const target2 = creep.pos.findClosestByRange(FIND_MY_CREEPS, {
             filter: function(object) {
                 return object.hits < object.hitsMax;
             }
         });
-        const target = Game.creeps['Attacker14048563']
+        const target = Game.creeps['rangedAttacker'];
         if(target) {
             creep.moveTo(target);
             if(creep.pos.isNearTo(target2)) {
@@ -22,4 +22,3 @@ var roleHealer = {
 };
 
 module.exports = roleHealer;
-

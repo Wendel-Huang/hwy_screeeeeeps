@@ -1,0 +1,11 @@
+module.exports={
+    run:function(creep){
+        if(!creep.pos.isEqualTo(Game.flags["flagMassAttack"])){
+            if(creep.pos.inRangeTo(Game.creeps["healer"])){
+                creep.moveTo(Game.flags["flagMassAttack"],{reusePath:300});
+            }
+        }else{
+            creep.rangedMassAttack();
+        }
+    }
+}

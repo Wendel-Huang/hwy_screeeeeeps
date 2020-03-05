@@ -1,3 +1,14 @@
+Room.prototype.addFacComponentTask=function(resouceType,amount){
+	if(!this.memory.facComponentTask) this.memory.facComponentTask={};
+	if(!this.memory.facComponentTask[resouceType]){
+		this.memory.facComponentTask[resouceType]=amount;
+	}
+}
+
+Room.prototype.deleteFacComponentTask=function(resouceType){
+	delete this.memory.facComponentTask[resouceType];
+}
+
 Room.prototype.addCenterTask=function(task){
 	//初始化数组
 	if(!this.memory.centerTransferTask) this.memory.centerTransferTask=[];
@@ -12,18 +23,24 @@ Room.prototype.addCenterTask=function(task){
 	}
 	//未提交任务，提交
 	if(!hasTask){
-		let fromStr=Game.getObjectById(task.fromId);
-		let toStr=Game.getObjectById(task.toId);
-		console.log(this.name+" push task "+fromStr.structureType+" to "+toStr.structureType);
+		// let fromStr=Game.getObjectById(task.fromId);
+		// let toStr=Game.getObjectById(task.toId);
+		// console.log(this.name+" push task "+fromStr.structureType+" to "+toStr.structureType);
 		this.memory.centerTransferTask.push(task);
+		return 0;
+	}else{
+		return -1;
 	}
 }
 
 Room.prototype.updateCenterTask=function(transferAmount){
 	this.memory.centerTransferTask[0].amount -= transferAmount
     if (this.memory.centerTransferTask[0].amount <= 0) {
-        this.memory.centerTransferTask.shift();
-        console.log(this.name+' task finished! taskLength:'+this.memory.centerTransferTask.length);
+		if(this.memory.facComponentTask&&this.memory.facComponentTask[this.memory.centerTransferTask[0].resourceType]){
+			delete this.memory.facComponentTask[this.memory.centerTransferTask[0].resourceType];
+		}
+		this.memory.centerTransferTask.shift();
+        // console.log(this.name+' task finished! taskLength:'+this.memory.centerTransferTask.length);
     }
 }
 
@@ -51,14 +68,4 @@ Room.prototype.checkSourceEffect=function(){
 			}
 		}
 	}
-}
-
-StructureLink.prototype.pushTask=function(){
-	var task={
-		fromId:this.id,
-		toId:this.room.terminal.id,
-		amount:this.store.energy,
-		resourceType:'energy'
-	};
-	this.room.addCenterTask(task);
 }

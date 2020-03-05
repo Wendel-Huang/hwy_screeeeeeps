@@ -5,7 +5,6 @@ var roleUpgrader = {
         // creep.drop('energy')
         if(creep.hits<creep.hitsMax){
           Memory.roomAttacked[creep.memory.withdrawroom]={
-            creepAttacked:true,
             creepAttackedTimer:10000
           };
         }

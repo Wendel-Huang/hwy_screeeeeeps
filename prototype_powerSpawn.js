@@ -18,3 +18,11 @@ StructurePowerSpawn.prototype.addCenterTransferTask=function(){
     this.room.addCenterTask(task);
   }
 }
+
+StructurePowerSpawn.prototype.myProcessPower=function(){
+    this.processPower();
+    var terminal=this.room.terminal;
+    if(terminal.store.getUsedCapacity('energy')>60000&&terminal.store.getUsedCapacity('power')>=100){
+      this.addCenterTransferTask();
+    }
+}
