@@ -1,5 +1,5 @@
 var roleUpgrader = {
-    run: function(creep) { 
+    run: function(creep) {
         // creep.memory.workroom='E5S1'
         var myflag=Game.flags[creep.memory.workroom+'TSD'];
         var target = myflag.room.lookForAt('structure',myflag);
@@ -13,23 +13,22 @@ var roleUpgrader = {
             creep.withdraw(target[0], RESOURCE_ENERGY);
             if (target[0].hits<230000 && target[0].structureType=='container') {
                 if(creep.repair(target[0]) == ERR_NOT_IN_RANGE) {
-                    creep.moveTo(target[0], {visualizePathStyle: {stroke: '#ffffff'}});
+                    creep.moveTo(target[0], {visualizePathStyle: {stroke: '#ffffff'},reusePath:50});
                 }
             }
             if(target[0].hits>=230000 || target[0].structureType!='container'){
                 if(creep.upgradeController(creep.room.controller) == ERR_NOT_IN_RANGE) {
-                    creep.moveTo(creep.room.controller, {visualizePathStyle: {stroke: '#ffffff'}});
+                    creep.moveTo(creep.room.controller, {visualizePathStyle: {stroke: '#ffffff'},reusePath:50});
                 }
             }
         }
         else{
-            if(creep.withdraw(target[0], RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) { 
+            if(creep.withdraw(target[0], RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
                 creep.moveTo(target[0], {visualizePathStyle: {stroke: '#ffaa00'}});
-            }                 
+            }
         }
         // creep.tickRenew2(1000,'Spawn2')
     }
 };
 
 module.exports = roleUpgrader;
-

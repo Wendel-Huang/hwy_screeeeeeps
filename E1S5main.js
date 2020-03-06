@@ -22,6 +22,29 @@ module.exports = {
 
 
         if(Game.spawns['Spawn'+roomname]){
+
+
+            //购买deposit
+            if(Game.time%10==0){
+                let terminal=Game.rooms[roomname].terminal;
+                let deposit=["silicon","mist","metal","biomass"];
+                let com0level=["wire","condensate","alloy","cell"];
+                let depoCanAccptPrc=[4,4,4,7];
+                for(let i=0;i<deposit.length;i++){
+                    if(terminal.store[deposit[i]]<20000&&terminal.store[com0level[i]]<5000){
+                        let createAmount=20000-terminal.store[deposit[i]];
+                        myCreateOrder(createAmount,depoCanAccptPrc[i],deposit[i],roomname);
+                    }
+
+                }
+            }
+            myDealSell(4,20000,"silicon","E1S5");
+            myDealSell(4,20000,"mist","E1S5");
+            myDealSell(4,20000,"metal","E1S5");
+            myDealSell(7,20000,"biomass","E1S5");
+
+
+
             //拾取、填充
             if(_.filter(Game.creeps, (creep) => creep.memory.role == 'pickuper'&&creep.memory.workroom==roomname).length<1){
                 Game.spawns['Spawn'+roomname].spawnCreep([CARRY,CARRY,CARRY,

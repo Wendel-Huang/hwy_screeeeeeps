@@ -9,6 +9,11 @@ module.exports = {
 
 
         if(Game.spawns['Spawn'+roomname]){
+
+            if(Game.time%1000==0){
+                myTerBlcBuy(['ops'],[0.5],roomname,5000);
+            }
+
             if(_.filter(Game.creeps, (creep) => creep.memory.role == 'pickuper'&&creep.memory.workroom==roomname).length<1){
                 Game.spawns['Spawn'+roomname].spawnCreep([CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,
                                                   MOVE,MOVE,MOVE,MOVE], 'WorkerPickuper'+Game.time,

@@ -35,7 +35,7 @@ var rolePickuper = {
                         target=terminal;
                     }
                     if(creep.withdraw(target,RESOURCE_ENERGY)==ERR_NOT_IN_RANGE){
-                        creep.moveTo(target);
+                        creep.moveTo(target,{reusePath:47});
                     }
                 }
             }else{

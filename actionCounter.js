@@ -59,7 +59,7 @@ let functionsToWarp = [
     {name: 'Creep.transfer', parent: Creep.prototype, val: Creep.prototype.transfer},
     {name: 'Creep.upgradeController', parent: Creep.prototype, val: Creep.prototype.upgradeController},
     {name: 'Creep.withdraw', parent: Creep.prototype, val: Creep.prototype.withdraw},
-    {name: 'Flag.remove', parent: Flag.prototype, val: Flag.remove},
+    {name: 'Flag.remove', parent: Flag.prototype, val: Flag.prototype.remove},
     {name: 'Flag.setColor', parent: Flag.prototype, val: Flag.prototype.setColor},
     {name: 'Flag.setPosition', parent: Flag.prototype, val: Flag.prototype.setPosition},
     {name: 'PowerCreep.delete', parent: PowerCreep.prototype, val: PowerCreep.prototype.delete},
@@ -118,7 +118,7 @@ function warpAction(name, parent, action){
 
         const end = warpGetUsed ? Game.cpu._getUsed() : Game.cpu.getUsed();
         //if((code === OK && end-start>0.1) || code instanceof Object) {
-        if(code === OK && end-start>0.1) {
+        if(code === OK && end - start > 0.1) {
             if(!actionsTime[name]){
                 actionsTime[name] = {calls: 0, CPU: 0};
             }
@@ -147,18 +147,19 @@ function init(warpGetUsedCPU = false) {
         return Game.cpu._getUsed() - totalCPU;
     }
 
-    if(warpGetUsed) {
+    if(warpGetUsed && !Game.cpu._getUsed) {
         Game.cpu._getUsed = Game.cpu.getUsed;
         Game.cpu.getUsed = warppedFunction;
     }
 
-    Game.actionCounter = {output: output};
+    Game.actionCounter = {singleTick: singleTick, ratio: ratio};
 }
 
 /**
  * @returns The formatted usage.
  */
-function output() {
+function singleTick() {
+    const cpu = warpGetUsed ? Game.cpu._getUsed() : Game.cpu.getUsed();
     const totalCalls = _.sum(actionsTime, obj => obj.calls);
     const totalCPU = _.sum(actionsTime, obj => obj.CPU);
 
@@ -166,7 +167,8 @@ function output() {
     const footer = [
         `Avg: ${(totalCPU / totalCalls).toFixed(2)}`,
         `TotalCPU: ${totalCPU.toFixed(2)}`,
-        `TotalAction: ${totalCalls}`
+        `TotalAction: ${totalCalls}`,
+        `Ratio: ${(totalCPU / cpu).toFixed(2)}%`
     ].join('\t');
 
     // const stats = 
@@ -204,18 +206,18 @@ function getData(){
 }
 
 /**
- *  保存当然tick的cpu用量
+ *  保存当前tick的cpu用量
  *  @param {number} length 需要保存的历史记录tick数量，越大开销越高，建议1500
  */
 function save(length){
-    let cpu_used = Game.cpu.getUsed();
+    let cpu_used = warpGetUsed ? Game.cpu._getUsed() : Game.cpu.getUsed();
     let index = Game.time%length;
     historyTotalCPU[index] = cpu_used;
     historyForcedCPU[index] = totalCPU;
 }
 
 /**
- * @returns 返回string:不超过 1500 tick 的总cpu与强制cpu比例
+ * @returns 返回string:不超过 {length} tick 的总cpu与强制cpu比例
  */
 function ratio(){
     let total_sum = 0;
@@ -226,7 +228,7 @@ function ratio(){
         forced_sum += historyForcedCPU[i];
         length += 1;
     }
-    return `⏲️ 前 ${length}tick 平均cpu:${(total_sum/length).toFixed(3)}, 平均强制cpu:${(forced_sum/length).toFixed(3)}, 比例:${(total_sum/forced_sum).toFixed(3)}`
+    return `⏲️ 前 ${length}tick 平均cpu:${(total_sum / length).toFixed(3)}, 平均强制cpu:${(forced_sum / length).toFixed(3)}, 比例:${(forced_sum / total_sum).toFixed(3)}`;
 }
 
 
@@ -238,29 +240,28 @@ module.exports = {
 
     /**
      * Initialize the actionCounter. It should be call at the begining of your code every tick.
-     * @param warpGetUsedCPU if true the function Game.cpu.getUsed will return the used CPU without action cost.
+     * @param {boolean} warpGetUsedCPU if true the function Game.cpu.getUsed will return the used CPU without action cost.
      */
     init: init,
 
     /**
      * @returns The formatted usage.
      */
-    output: output,
+    singleTick: singleTick,
 
     /**
      * @returns Returns actionData by now
      */
     getData: getData,
     
-    
     /**
-     *  保存当然tick的cpu用量
+     *  保存当前tick的cpu用量
      *  @param {number} length 需要保存的历史记录tick数量，越大开销越高，建议1500
      */
-    save:save,
+    save: save,
 
     /**
-     * @returns 返回string:不超过 1500 tick 的总cpu与强制cpu比例
+     * @returns 返回string:不超过 {length} tick 的总cpu与强制cpu比例
      */
-    ratio:ratio
+    ratio: ratio
 }

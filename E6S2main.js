@@ -9,6 +9,10 @@ module.exports = {
 
         if(Game.spawns['Spawn2'+roomname]){
 
+            if(Game.time%1000==0){
+                myTerBlcBuy(['ops'],[0.5],roomname,5000);
+            }
+
             //建造
             if(Game.time%100==0){
               if(Game.rooms[roomname].find(FIND_CONSTRUCTION_SITES).length>0){

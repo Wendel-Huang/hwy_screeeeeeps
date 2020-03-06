@@ -1,3 +1,6 @@
+// let actionCounter = require('actionCounter')
+// actionCounter.warpActions();
+
 var roleHarvester = require('role.harvester');
 var roleHarvesterD = require('role.harvesterD');
 var roleUpgrader = require('role.upgrader');
@@ -26,13 +29,17 @@ var roleWartransfer=require('role.wartransfer')
 var rolePowertransfer=require('role.powertransfer');
 var roleRepairer=require('role.repairer')
 var roleCenterTransfer=require('role.centerTransfer')
+var roleBigHarvester=require('role.bigHarvester')
+var roleFiller=require('role.filler')
 
 var W2S2=require('W2S2main')
 var E5S2=require('E5S2main')
 var E2S5=require('E2S5main')
 var E1S5=require('E1S5main')
 var E6S2=require('E6S2main')
-var W2S8=require('W2S8main')
+
+var energyRoom = require('energyRoom')
+var shoucao = require('shoucao')
 
 require('prototype_creep')
 require('prototype_globalFunction')
@@ -43,6 +50,7 @@ require('prototype_powerSpawn')
 require('prototype_terminal')
 require('prototype_lab')
 require('structureCache')
+
 
 // let actionCounter = require('actionCounter')
 // actionCounter.warpActions();
@@ -68,19 +76,25 @@ if(!Memory.factory) Memory.factory={};
 if(!Memory.share) Memory.share={};
 
 module.exports.loop = function () {
-    startup1.run('W3S3')
+    // actionCounter.init();
+
     // startup1.run('E1S5')
+    // startup1.run('W3S3')
     // startup1.run('E6S2')
     // startup1.run('E6S2')
     // window.onkeyup = keyf;
     // actionCounter.init();
+
+    shoucao.run();
+
+    energyRoom.run('W3S3');
+    energyRoom.run('W2S8');
 
     W2S2.run('W2S2')
     E5S2.run('E5S2')
     E2S5.run('E2S5')
     E1S5.run('E1S5')
     E6S2.run('E6S2')
-    W2S8.run('W2S8')
 
     // //通知
     // // Memory.lastHourValue=0
@@ -149,21 +163,30 @@ module.exports.loop = function () {
     global.sellEnergy('W2S8')
     global.sellEnergy('E5S2')
     global.sellEnergy('E6S2')
+    global.sellEnergy('W3S3')
     //market 商品
     // global.sellItem(21,'condensate','E5S1');
-    global.sellItem(14000,'muscle','E6S2');
-    global.sellItem(7500,'spirit','E6S2');
+    // global.sellItem(14000,'muscle','E6S2');
+    // global.sellItem(7500,'spirit','E6S2');
     // const elapsed = Game.cpu.getUsed() - startCpu;
     // console.log('It has used '+elapsed+' CPU time');
 
     global.attackedTimer(roomArray);
+
+    // myCreateOrder(5000,0.05,'O','W2S2')
+    // myCreateOrder(5000,0.05,'H','W2S2')
+    // myCreateOrder(5000,0.05,'Z','W2S2')
+    // myCreateOrder(5000,0.05,'K','W2S2')
+    // myCreateOrder(5000,0.05,'U','W2S2')
+    // myCreateOrder(5000,0.05,'L','W2S2')
+    // myCreateOrder(5000,0.12,'X','W2S2')
 
 
 
     for(var name in Memory.creeps) {
         if(!Game.creeps[name]) {
             delete Memory.creeps[name];
-            console.log('Clearing non-existing creep memory:', name);
+            // console.log('Clearing non-existing creep memory:', name);
         }
     }
 
@@ -246,7 +269,7 @@ module.exports.loop = function () {
     //link To storage
     if( _.filter(Game.creeps, (creep) => creep.memory.role == 'centerTransfer'&&creep.memory.withdrawroom=='E5S1').length<1){
         Game.spawns['Spawn1'].spawnCreep([CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,
-                                            MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE], 'TS '+Game.time+' E5S1',
+                                            MOVE], 'TS '+Game.time+' E5S1',
         {memory: {role: 'centerTransfer',withdrawroom:'E5S1'}});
     }
 
@@ -466,6 +489,12 @@ module.exports.loop = function () {
         else if (creep.memory.role=='repairer') {
             roleRepairer.run(creep);
         }
+        else if (creep.memory.role=='bigHarvester') {
+            roleBigHarvester.run(creep);
+        }
+        else if (creep.memory.role=='filler') {
+            roleFiller.run(creep);
+        }
     }
 
     // Game.structures['5e113c037b3e97757dff5fe5'].work();
@@ -560,7 +589,9 @@ module.exports.loop = function () {
     // }
 
 
-
+    if(Game.time%1000==0){
+        myTerBlcBuy(['ops'],[0.5],'E5S1',5000);
+    }
 
 
 
@@ -597,6 +628,46 @@ module.exports.loop = function () {
     global.observeRoom(roomArray);
     // actionCounter.save(1500);
     // console.log(actionCounter.ratio())
+
+    // const startCpu = Game.cpu.getUsed();
+    //此处使用CPU 0.14
+    myDealBuy(50,15000,150,4000,'microchip','E6S2');
+    myDealBuy(50,7000,150,4500,'spirit','E6S2');
+    myDealBuy(50,15000,150,4000,'frame','E6S2');
+    myDealBuy(50,15000,150,6000,'muscle','E6S2');
+    // const elapsed = Game.cpu.getUsed() - startCpu;
+    // console.log('It has used '+elapsed+' CPU time '+Game.time);
+
+
+    //购买0级商品
+    // const startCpu = Game.cpu.getUsed();
+    //此处使用CPU 0.14
+    if(Game.time%10==0){
+        let terminal=Game.rooms['E5S1'].terminal;
+        let comLowLevel=["wire","condensate","alloy","cell"];
+        let comHighLevel=["switch","concentrate","tube","phlegm"];
+        let depoCanAccptPrc=[15,15,15,30];
+        for(let i=0;i<comLowLevel.length;i++){
+            if(terminal.store[comLowLevel[i]]<4000&&terminal.store[comHighLevel[i]]<400){
+                let createAmount=4000-terminal.store[comLowLevel[i]];
+                myCreateOrder(createAmount,depoCanAccptPrc[i],comLowLevel[i],'E5S1');
+            }
+
+        }
+    }
+    myDealSell(15,10000,"wire","E5S1");
+    myDealSell(15,10000,"condensate","E5S1");
+    myDealSell(15,10000,"alloy","E5S1");
+    myDealSell(25,10000,"cell","E5S1");
+    // const elapsed = Game.cpu.getUsed() - startCpu;
+    // console.log('It has used '+elapsed+' CPU time '+Game.time);
+
+
+
+    if(Game.time%1000==0){
+        cancelEmptyOrders();
+    }
+
     if(Game.time%20==0){
         //hardcode 非主房送deposit
         Game.rooms['E1S5'].terminal.sendWhenReady('biomass',1000,'E5S1');
@@ -641,4 +712,8 @@ module.exports.loop = function () {
 
         Memory.stats['credits'] = Game.market.credits;
     }
+
+    //
+    // actionCounter.save(1500);
+    // console.log(actionCounter.ratio())
 }

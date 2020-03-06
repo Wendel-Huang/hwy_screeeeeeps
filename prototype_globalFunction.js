@@ -1,3 +1,177 @@
+/**
+ *@param {Array of string} resourceBuyTypeArray-要买的资源类型数组
+ *@param {Array of string} resourceBuyCnAccpPrcArray-相应资源购买时能接受的最高价格
+ *@param {string} roomname
+ *@param {number} balanceAmount
+ */
+global.myTerBlcBuy=function(resourceBuyTypeArray,resourceBuyCnAccpPrcArray,roomname,balanceAmount){
+    let terminal=Game.rooms[roomname].terminal;
+    for(let i=0;i<resourceBuyTypeArray.length;i++){
+        if(terminal.store[resourceBuyTypeArray[i]]<balanceAmount){
+            let createAmount=balanceAmount-terminal.store[resourceBuyTypeArray[i]];
+            myCreateOrder(createAmount,resourceBuyCnAccpPrcArray[i],resourceBuyTypeArray[i],roomname);
+        }
+    }
+}
+
+
+/**
+ *@param {string} resourceType
+ *@param {number} resourceAmount
+ */
+global.costCalc=function(resourceType,resourceAmount){
+    let baseResource=['O','H','Z','K','U','L','X','silicon','mist','metal','biomass','energy']
+    let totalPrice=0;
+    if(baseResource.indexOf(resourceType)==-1){
+        let productAmount=COMMODITIES[resourceType].amount;
+        for(let component in COMMODITIES[resourceType].components){
+            let amount = resourceAmount*COMMODITIES[resourceType].components[component]/productAmount;
+            totalPrice+=costCalc(component,amount);
+        }
+    }else{
+        let avgPrice=Game.market.getHistory(resourceType)[0].avgPrice;
+        totalPrice=avgPrice*resourceAmount;
+    }
+    return totalPrice;
+}
+
+
+/**
+ *@param {string} resourceType
+ */
+global.costGainRatio=function(resourceType){
+    let cost=costCalc(resourceType,1);
+    let gain=Game.market.getHistory(resourceType)[0].avgPrice;
+    return (cost+"/"+gain+" = "+cost/gain)
+}
+
+
+
+
+
+
+/**
+ *@param {number} priceCanAccept
+ *@param {number} limitAmount：限制买的量，使terminal中的量不超过此数
+ *@param {string} resourceType
+ *@param {string} roomname
+ */
+global.myDealSell=function(priceCanAccept,limitAmount,resourceType,roomname){
+
+    //根据terminal存储量确定 能接受的价格-priceCanAccept
+    let terminalAmount=Game.rooms[roomname].terminal.store[resourceType];
+
+    if(terminalAmount<limitAmount){
+        //计算市场SELL单中的最低价
+        let marketPrice=1000000;
+        let marketOrders=_.filter(Game.market.getAllOrders({type:ORDER_SELL,resourceType:resourceType}), (order) => order.remainingAmount>0);
+        let lowPriceIndex=0;
+        for(let i=0;i<marketOrders.length;i++){
+            if(marketOrders[i].price<marketPrice){
+                marketPrice=marketOrders[i].price;
+                lowPriceIndex=i;
+            }
+        }
+        //若市场价低于 priceCanAccept, 就成交
+        if(marketPrice<priceCanAccept){
+            let needAmount=limitAmount-terminalAmount;
+            let dealAmount = needAmount<marketOrders[lowPriceIndex].amount?needAmount:marketOrders[lowPriceIndex].amount;
+            console.log("buy:"+resourceType+" price:"+marketPrice+" amount:"+dealAmount);
+            Game.market.deal(marketOrders[lowPriceIndex].id,dealAmount,roomname);
+        }
+    }
+
+
+}
+
+
+
+/**
+ *@param {number} amount1-低量
+ *@param {number} price1-低量时的高价
+ *@param {number} amount2
+ *@param {number} price2
+ *@param {string} resourceType
+ *@param {string} roomname
+ */
+global.myDealBuy=function(amount1,price1,amount2,price2,resourceType,roomname){
+
+    //根据terminal存储量确定 能接受的价格-priceCanAccept
+    let terminalAmount=Game.rooms[roomname].terminal.store[resourceType];
+    let priceCanAccept;
+    if(terminalAmount<=amount1) priceCanAccept=price1;
+    else if(terminalAmount>=amount2) priceCanAccept=price2;
+    else priceCanAccept=price1+(price2-price1)*(terminalAmount-amount1)/(amount2-amount1);
+
+    //计算市场BUY单中的最高价
+    let marketPrice=0;
+    let marketOrders=_.filter(Game.market.getAllOrders({type:ORDER_BUY,resourceType:resourceType}), (order) => order.remainingAmount>0);
+    let highPriceIndex=0;
+    for(let i=0;i<marketOrders.length;i++){
+        if(marketOrders[i].price>marketPrice){
+            marketPrice=marketOrders[i].price;
+            highPriceIndex=i;
+        }
+    }
+
+    if(marketPrice>priceCanAccept){
+        let dealAmount = terminalAmount<marketOrders[highPriceIndex].amount?terminalAmount:marketOrders[highPriceIndex].amount;
+        console.log("sell "+resourceType+": price-"+marketPrice+" amount-"+dealAmount);
+        Game.market.deal(marketOrders[highPriceIndex].id,dealAmount,roomname);
+    }
+}
+
+
+
+
+
+/**
+ *@param {number} amount
+ *@param {number} priceCanAccept
+ *@param {string} resourceType
+ *@param {string} roomname
+ */
+global.myCreateOrder=function(amount,priceCanAccept,resourceType,roomname){
+    let myOrders=_.filter(Game.market.orders, (order) => order.resourceType==resourceType&&order.remainingAmount>0)
+    let marketOrders=Game.market.getAllOrders({type:ORDER_BUY,resourceType:resourceType});
+    let highPrice=0;
+    for(let i=0;i<marketOrders.length;i++){
+        if(marketOrders[i].price>highPrice) highPrice=marketOrders[i].price;
+    }
+    //计算计划价格，由 市场最高价决定，但不高于阈值
+    let myPlanPrice = priceCanAccept<highPrice?priceCanAccept:highPrice;
+    if(!myOrders.length){
+        let returnValue=Game.market.createOrder({
+            type:ORDER_BUY,
+            resourceType:resourceType,
+            price:myPlanPrice+0.001,
+            totalAmount:amount,
+            roomName:roomname
+        })
+        if(returnValue==OK){
+            console.log("create order: "+resourceType+" "+myPlanPrice+" "+amount);
+        }
+    }
+    else if(myOrders[0].price<myPlanPrice){
+        console.log("change orderPrice: "+resourceType+" "+myOrders[0].price+"->"+(myPlanPrice+0.001)+", remainingAmount:"+myOrders[0].remainingAmount);
+        Game.market.changeOrderPrice(myOrders[0].id,myPlanPrice+0.001);
+    }
+}
+
+
+
+global.cancelEmptyOrders=function(){
+    let myOrders=_.filter(Game.market.orders, (order) => order.remainingAmount==0)
+    for(let i=0;i<myOrders.length;i++){
+        console.log("cancelEmptyOrders: "+myOrders[i].resourceType+", total:"+myOrders[i].totalAmount)
+        Game.market.cancelOrder(myOrders[i].id);
+    }
+}
+
+
+
+
+
 global.spawnDepositWorker=function(depositRoom,giveRoom,spawnName){
     if(!Game.spawns[spawnName].spawning&&_.filter(Game.creeps, (creep) => creep.memory.role == 'transferD'&&creep.memory.withdrawroom==depositRoom).length<1){
         Game.spawns[spawnName].mySpawnCreep([0,4,4], 'TS '+Game.time+depositRoom,
@@ -17,6 +191,9 @@ global.A_sendto_B=function(Aroonname,Broomname,keepamount){
     Game.rooms[Aroonname].terminal.send('energy',10000,Broomname)
   }
 }
+
+
+
 
 StructureSpawn.prototype.mySpawnCreep=function(body,name,opts){
   let bodypart='';

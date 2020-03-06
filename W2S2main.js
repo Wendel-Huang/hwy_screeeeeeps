@@ -9,6 +9,19 @@ module.exports = {
 
         if(Game.spawns['Spawn'+roomname]){
 
+            if(Game.time%100==0){
+                let terminal=Game.rooms[roomname].terminal;
+                let storage=Game.rooms[roomname].storage;
+                let raw=["O","H","Z","K","U","L","X"];
+                let price=[0.05,0.05,0.05,0.05,0.05,0.05,0.12];
+                let bar=["oxidant","reductant","zynthium_bar","keanium_bar","utrium_bar","lemergium_bar","purifier"];
+                for(let i=0;i<raw.length;i++){
+                    if(terminal.store[raw[i]]<5000&&storage.store[bar[i]]<50000){
+                        myCreateOrder(5000,0.05,price[i],roomname)
+                    }
+                }
+            }
+
             //建造
             // if(_.filter(Game.creeps, (creep) => creep.memory.role == roomname+'builder'&&creep.memory.workroom==roomname).length<1){
             //     Game.spawns['Spawn'+roomname].mySpawnCreep([10,10,10], 'WorkerB'+Game.time,
