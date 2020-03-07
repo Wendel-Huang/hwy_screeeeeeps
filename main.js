@@ -60,6 +60,11 @@ var roomArrayW2S2=['W4N0','W3N0','W2N0','W4S0','W3S0','W2S0'];
 if(!Memory.factory) Memory.factory={};
 if(!Memory.share) Memory.share={};
 if(!Memory.tradeStat) Memory.tradeStat={};
+if(!Memory.tradeStat["orderBuy"]) Memory.tradeStat["orderBuy"]={};
+if(!Memory.tradeStat["dealSell"]) Memory.tradeStat["dealSell"]={};
+if(!Memory.tradeStat["dealBuy"]) Memory.tradeStat["dealBuy"]={};
+
+
 
 module.exports.loop = function () {
     mainLoop();
@@ -184,29 +189,10 @@ function mainLoop(){
     //一键买低于某价格的resource
     // buyItemUnderPrice('XLHO2',2.7,'E5S1')
 
-    //market
-    var ordersPower=Game.market.getAllOrders({type: ORDER_SELL, resourceType: 'power'});
-    var lowI=0;
-    var lowPrice=10;
-    for(i=0;i<ordersPower.length;i++){
-        if(ordersPower[i].price<lowPrice&&ordersPower[i].amount>0){
-            lowPrice=ordersPower[i].price;
-            lowI=i;
-        }
-    }
-    // console.log(ordersPower[lowI].price)
-    if(Game.rooms['E5S1'].terminal.store.power<2000&&lowPrice<=3.5){
-        Game.market.deal(ordersPower[lowI].id, ordersPower[lowI].amount, "E5S1");
-    }
-    if(Game.rooms['E5S1'].terminal.store.power<10000&&lowPrice<=3){
-        Game.market.deal(ordersPower[lowI].id, ordersPower[lowI].amount, "E5S1");
-    }
-    if(Game.rooms['E5S1'].terminal.store.power<30000&&lowPrice<=2.5){
-        Game.market.deal(ordersPower[lowI].id, ordersPower[lowI].amount, "E5S1");
-    }
-    if(Game.rooms['E5S1'].terminal.store.power<100000&&lowPrice<=2){
-        Game.market.deal(ordersPower[lowI].id, ordersPower[lowI].amount, "E5S1");
-    }
+    //market buy power
+    let terminalAmount=Game.rooms['E5S1'].terminal.store.power;
+    let priceCanAccept=calPriceAtAmount(terminalAmount,2000,3.5,45000,2);
+    myDealSell(priceCanAccept,terminalAmount+20000,"power","E5S1");
 
     //E6S2 E5S2 power
     if(Game.rooms.E6S2.terminal.store.power<2000&&Game.rooms.E5S1.terminal.store.power>2000){

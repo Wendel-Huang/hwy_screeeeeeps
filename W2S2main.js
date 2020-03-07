@@ -72,8 +72,8 @@ module.exports = {
 
             //spawn捡起者(兼职extension运输)
            if(_.filter(Game.creeps, (creep) => creep.memory.role == 'pickuper'&&creep.memory.workroom==roomname).length<1){
-               Game.spawns['Spawn'+roomname].spawnCreep([CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,
-                                                 MOVE,MOVE,MOVE,MOVE], 'WorkerPickuper'+Game.time,
+               Game.spawns['Spawn'+roomname].spawnCreep([CARRY,CARRY,CARRY,
+                                                 MOVE,MOVE,MOVE], 'WorkerPickuper'+Game.time,
                    {memory: {role: 'pickuper',send: false,reachmiddle:1,workroom:roomname}}
                    );
            }

@@ -1,6 +1,6 @@
 var stoTerBlcMaterial={
 	//sto与ter转入转出，不做,不需要fac等级的
-	"W2S2":{"utrium_bar":1000,"zynthium_bar":1000,"lemergium_bar":1000,"keanium_bar":1000,"purifier":1000,"oxidant":1000,"reductant":1000},
+	"W2S2":{"utrium_bar":5000,"zynthium_bar":5000,"lemergium_bar":5000,"keanium_bar":5000,"purifier":5000,"oxidant":5000,"reductant":5000},
 	"E5S1":{"L":5000}
 }
 var fac2TerMaterial={
@@ -97,8 +97,8 @@ StructureFactory.prototype.checkItem=function(){
 	for(let resourceType in stoTerBlcMaterial[roomname]){
 		let resourceNum=stoTerBlcMaterial[roomname][resourceType];
 		// console.log(resourceType+" lll ")
-		if(this.room.terminal.store[resourceType]>=2*resourceNum){
-			this.pushTask(this.room.terminal.id,this.room.storage.id,resourceNum,resourceType);
+		if(this.room.terminal.store[resourceType]>=resourceNum){
+			this.pushTask(this.room.terminal.id,this.room.storage.id,this.room.terminal.store[resourceType]-resourceNum,resourceType);
 		}else if(this.room.terminal.store[resourceType]<resourceNum&&this.room.storage.store[resourceType]>=resourceNum-this.room.terminal.store[resourceType]){
 			//factory存量小于1000，storage存量大于1000，移回factory
 			this.pushTask(this.room.storage.id,this.room.terminal.id,resourceNum-this.room.terminal.store[resourceType],resourceType);

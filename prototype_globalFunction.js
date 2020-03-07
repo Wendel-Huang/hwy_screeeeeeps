@@ -1,4 +1,18 @@
 /**
+ *@param {number} amount-实际的存量
+ *@param {number} amountLow-低量
+ *@param {number} priceHigh-低量时的高价
+ *@param {number} amountHigh-高量
+ *@param {string} priceLow-高量时的低价
+ */
+global.calPriceAtAmount=function(amount,amountLow,priceHigh,amountHigh,priceLow){
+    if(amount<amountLow) return priceHigh;
+    if(amount>amountHigh) return priceLow;
+    else return (priceHigh+(priceLow-priceHigh)*(amount-amountLow)/(amountHigh-amountLow));
+}
+
+
+/**
  *@param {Array of string} resourceBuyTypeArray-要买的资源类型数组
  *@param {Array of string} resourceBuyCnAccpPrcArray-相应资源购买时能接受的最高价格
  *@param {string} roomname
@@ -76,8 +90,11 @@ global.myDealSell=function(priceCanAccept,limitAmount,resourceType,roomname){
         if(marketPrice<=priceCanAccept){
             let needAmount=limitAmount-terminalAmount;
             let dealAmount = needAmount<marketOrders[lowPriceIndex].amount?needAmount:marketOrders[lowPriceIndex].amount;
-            console.log("buy:"+resourceType+" price:"+marketPrice+" amount:"+dealAmount);
-            Game.market.deal(marketOrders[lowPriceIndex].id,dealAmount,roomname);
+            if(Game.market.deal(marketOrders[lowPriceIndex].id,dealAmount,roomname)==OK){
+                console.log("buy:"+resourceType+" price:"+marketPrice+" amount:"+dealAmount);
+                if(!Memory.tradeStat["dealSell"][resourceType]) Memory.tradeStat["dealSell"][resourceType]=0;
+                Memory.tradeStat["dealSell"][resourceType]+=marketPrice*dealAmount;
+            }
         }
     }
 
@@ -119,6 +136,8 @@ global.myDealBuy=function(amount1,price1,amount2,price2,resourceType,roomname){
         if(dealAmount>0){
             if(Game.market.deal(marketOrders[highPriceIndex].id,dealAmount,roomname)==OK){
                 console.log("sell "+resourceType+": price-"+marketPrice+" amount-"+dealAmount);
+                if(!Memory.tradeStat["dealBuy"][resourceType]) Memory.tradeStat["dealBuy"][resourceType]=0;
+                Memory.tradeStat["dealBuy"][resourceType]+=dealAmount*marketPrice;
             }
         }
     }
@@ -135,6 +154,7 @@ global.myDealBuy=function(amount1,price1,amount2,price2,resourceType,roomname){
  *@param {string} roomname
  */
 global.myCreateOrder=function(amount,priceCanAccept,resourceType,roomname){
+    if(!Memory.tradeStat["orderBuy"][resourceType]) Memory.tradeStat["orderBuy"][resourceType]=0;
     let myOrders=_.filter(Game.market.orders, (order) => order.resourceType==resourceType&&order.remainingAmount>0)
     let marketOrders=Game.market.getAllOrders({type:ORDER_BUY,resourceType:resourceType});
     let highPrice=0;
@@ -152,11 +172,13 @@ global.myCreateOrder=function(amount,priceCanAccept,resourceType,roomname){
             roomName:roomname
         })
         if(returnValue==OK){
-            console.log("create order: "+resourceType+" "+myPlanPrice+" "+amount);
+            console.log("create order: "+resourceType+" "+(myPlanPrice+0.001)+" "+amount);
+            Memory.tradeStat["orderBuy"][resourceType]+=amount*(myPlanPrice+0.001)*1.05;
         }
     }
     else if(myOrders[0].price<myPlanPrice){
         console.log("change orderPrice: "+resourceType+" "+myOrders[0].price+"->"+(myPlanPrice+0.001)+", remainingAmount:"+myOrders[0].remainingAmount);
+        Memory.tradeStat["orderBuy"][resourceType]+=myOrders[0].remainingAmount*(myPlanPrice+0.001-myOrders[0].price)*1.05;
         Game.market.changeOrderPrice(myOrders[0].id,myPlanPrice+0.001);
     }
 }
