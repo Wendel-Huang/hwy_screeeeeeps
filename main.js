@@ -61,7 +61,7 @@ if(!Memory.factory) Memory.factory={};
 if(!Memory.share) Memory.share={};
 
 module.exports.loop = function () {
-    // mainLoop();
+    mainLoop();
 }
 
 
