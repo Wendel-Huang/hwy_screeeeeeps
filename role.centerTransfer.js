@@ -16,8 +16,7 @@ var roleUpgrader = {
               creep.moveTo(fromStru, {reusePath: 18});
             }
             else if(returnValue==ERR_NOT_ENOUGH_RESOURCES){
-                let centerTransferTask=creep.room.memory.centerTransferTask.shift();
-                creep.room.memory.centerTransferTask.push(centerTransferTask);
+                creep.room.memory.centerTransferTask.shift();
             }
           }else{
             for(const resourceType in creep.store) {

@@ -9,18 +9,26 @@ module.exports = {
 
         if(Game.spawns['Spawn'+roomname]){
 
-            if(Game.time%100==0){
+            if(Game.time%10==0){
                 let terminal=Game.rooms[roomname].terminal;
                 let storage=Game.rooms[roomname].storage;
                 let raw=["O","H","Z","K","U","L","X"];
-                let price=[0.05,0.05,0.05,0.05,0.05,0.05,0.12];
+                let price=[0.03,0.03,0.05,0.05,0.05,0.05,0.12];
                 let bar=["oxidant","reductant","zynthium_bar","keanium_bar","utrium_bar","lemergium_bar","purifier"];
                 for(let i=0;i<raw.length;i++){
                     if(terminal.store[raw[i]]<5000&&storage.store[bar[i]]<50000){
-                        myCreateOrder(5000,0.05,price[i],roomname)
+                        myCreateOrder(5000,price[i],raw[i],roomname)
                     }
                 }
             }
+            // myDealSell(0.1,5000,"O","W2S2");
+            // myDealSell(0.1,5000,"H","W2S2");
+            // myDealSell(0.1,5000,"Z","W2S2");
+            // myDealSell(0.1,5000,"K","W2S2");
+            // myDealSell(0.1,5000,"U","W2S2");
+            // myDealSell(0.2,5000,"L","W2S2");
+            // myDealSell(0.5,5000,"X","W2S2");
+
 
             //建造
             // if(_.filter(Game.creeps, (creep) => creep.memory.role == roomname+'builder'&&creep.memory.workroom==roomname).length<1){

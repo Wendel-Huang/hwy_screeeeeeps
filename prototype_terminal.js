@@ -8,8 +8,7 @@ StructureTerminal.prototype.handleFacComponentTask=function(){
                 fromId:this.id,
           		toId:this.room.factory.id,
           		amount:this.room.memory.facComponentTask[resourceType],
-                //这里可能有问题！！！！！！！！！！！！！！！！！！
-          		"resourceType":resourceType
+          		resourceType:resourceType
             }
             this.room.addCenterTask(task);
             break;
@@ -20,16 +19,33 @@ StructureTerminal.prototype.handleFacComponentTask=function(){
 }
 
 StructureTerminal.prototype.pushShare=function(resourceType,amount,destination){
-    if(!Memory.share[resourceType]) Memory.share[resourceType]={"amount":amount,"destination":destination};
+    let shareTask={"amount":amount,"destination":destination};
+    if(!Memory.share[resourceType]){
+        Memory.share[resourceType]=[];
+        Memory.share[resourceType+"Pushed"]={};
+    }
+    if(!Memory.share[resourceType+"Pushed"][this.room.name]){
+        Memory.share[resourceType].push(shareTask);
+        //防止同一个房间重复push share
+        Memory.share[resourceType+"Pushed"][this.room.name]=true;
+    }
 }
 
 
+
+//每个terminal检查全局资源请求，自己存储量大于请求额，就发送
 StructureTerminal.prototype.handleShare=function(){
     for(let type in Memory.share){
-        if(this.store[type]>=Memory.share[type].amount&&this.room.name!=Memory.share[type].destination){
-            if(this.send(type,Memory.share[type].amount,Memory.share[type].destination)==OK){
-                console.log(this.room.name+" send to "+Memory.share[type].destination+", "+type+":"+Memory.share[type].amount);
-                delete Memory.share[type];
+        let share=Memory.share[type];
+        if(share.length>0){
+            let requireAmount=share[0].amount;
+            let requireRoom=share[0].destination;
+            if(this.store[type]>=requireAmount&&this.room.name!=requireRoom){
+                if(this.send(type,requireAmount,requireRoom)==OK){
+                    console.log(this.room.name+" send to "+requireRoom+", "+type+":"+requireAmount);
+                    share.shift();
+                    Memory.share[type+"Pushed"][requireRoom]=false;
+                }
             }
         }
     }

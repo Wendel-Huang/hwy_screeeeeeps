@@ -59,6 +59,7 @@ var roomArrayW2S2=['W4N0','W3N0','W2N0','W4S0','W3S0','W2S0'];
 
 if(!Memory.factory) Memory.factory={};
 if(!Memory.share) Memory.share={};
+if(!Memory.tradeStat) Memory.tradeStat={};
 
 module.exports.loop = function () {
     mainLoop();
@@ -622,14 +623,7 @@ function mainLoop(){
     // actionCounter.save(1500);
     // console.log(actionCounter.ratio())
 
-    // const startCpu = Game.cpu.getUsed();
-    //此处使用CPU 0.14
-    myDealBuy(50,15000,150,4000,'microchip','E6S2');
-    myDealBuy(50,7000,150,4500,'spirit','E6S2');
-    myDealBuy(50,15000,150,4000,'frame','E6S2');
-    myDealBuy(50,15000,150,6000,'muscle','E6S2');
-    // const elapsed = Game.cpu.getUsed() - startCpu;
-    // console.log('It has used '+elapsed+' CPU time '+Game.time);
+    myDealBuy(5000,4.5,20000,2,'composite','E5S1');
 
 
     //购买0级商品

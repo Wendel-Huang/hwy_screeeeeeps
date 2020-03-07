@@ -13,6 +13,15 @@ module.exports = {
                 myTerBlcBuy(['ops'],[0.5],roomname,5000);
             }
 
+            // const startCpu = Game.cpu.getUsed();
+            //此处使用CPU 0.14
+            myDealBuy(50,15000,150,4000,'microchip','E6S2');
+            myDealBuy(50,7000,150,4500,'spirit','E6S2');
+            myDealBuy(50,15000,150,4000,'frame','E6S2');
+            myDealBuy(50,15000,150,6000,'muscle','E6S2');
+            // const elapsed = Game.cpu.getUsed() - startCpu;
+            // console.log('It has used '+elapsed+' CPU time '+Game.time);
+
             //建造
             if(Game.time%100==0){
               if(Game.rooms[roomname].find(FIND_CONSTRUCTION_SITES).length>0){

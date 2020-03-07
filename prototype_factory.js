@@ -1,3 +1,27 @@
+var stoTerBlcMaterial={
+	//sto与ter转入转出，不做,不需要fac等级的
+	"W2S2":{"utrium_bar":1000,"zynthium_bar":1000,"lemergium_bar":1000,"keanium_bar":1000,"purifier":1000,"oxidant":1000,"reductant":1000},
+	"E5S1":{"L":5000}
+}
+var fac2TerMaterial={
+	//fac转出到ter,要做（后面的数字意义：factory存量大于此数字，转出此数字的量到terminal)
+	"W2S2":{"utrium_bar":1000,"zynthium_bar":1000,"lemergium_bar":1000,"keanium_bar":1000,"purifier":1000,"oxidant":1000,"reductant":1000},
+	"E1S5":{
+		"wire":400,"condensate":400,"alloy":400,"cell":400
+	},
+	"E5S1":{
+		"switch":100,"concentrate":100,"tube":100,"phlegm":100,"composite":100
+	},
+	"E5S2":{
+		"transistor":30,"extract":30,"fixtures":30,"tissue":30,"crystal":100
+	},
+	"E6S2":{
+		"microchip":1,"spirit":1,"frame":1,"muscle":1
+	}
+}
+
+
+
 StructureFactory.prototype.pushPowerTask=function(){
 	if(!Memory.powerTaskList){
 		Memory.powerTaskList={};
@@ -21,28 +45,6 @@ StructureFactory.prototype.pushTask=function(fromID,toID,theAmount,theType){
 		resourceType:theType
 	}
 	this.room.addCenterTask(task);
-}
-
-var stoTerBlcMaterial={
-	//sto与ter转入转出，不做,不需要fac等级的
-	"W2S2":{"oxidant":5000,"reductant":5000,"zynthium_bar":5000,"keanium_bar":5000,"utrium_bar":5000,"lemergium_bar":5000,"purifier":5000},
-	"E5S1":{"L":5000}
-}
-var fac2TerMaterial={
-	//fac转出到ter,要做（后面的数字意义：factory存量大于此数字，转出此数字的量到terminal)
-	"W2S2":{"oxidant":1000,"reductant":1000,"zynthium_bar":1000,"keanium_bar":1000,"utrium_bar":1000,"lemergium_bar":1000,"purifier":1000},
-	"E1S5":{
-		"wire":400,"condensate":400,"alloy":400,"cell":400
-	},
-	"E5S1":{
-		"switch":100,"concentrate":100,"tube":100,"phlegm":100,"composite":100
-	},
-	"E5S2":{
-		"transistor":30,"extract":30,"fixtures":30,"tissue":30
-	},
-	"E6S2":{
-		"microchip":1,"spirit":1,"frame":1,"muscle":1
-	}
 }
 
 StructureFactory.prototype.work=function(){

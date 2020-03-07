@@ -20,7 +20,7 @@ global.myTerBlcBuy=function(resourceBuyTypeArray,resourceBuyCnAccpPrcArray,roomn
  *@param {number} resourceAmount
  */
 global.costCalc=function(resourceType,resourceAmount){
-    let baseResource=['O','H','Z','K','U','L','X','silicon','mist','metal','biomass','energy']
+    let baseResource=['O','H','Z','K','U','L','X','G','silicon','mist','metal','biomass','energy']
     let totalPrice=0;
     if(baseResource.indexOf(resourceType)==-1){
         let productAmount=COMMODITIES[resourceType].amount;
@@ -73,7 +73,7 @@ global.myDealSell=function(priceCanAccept,limitAmount,resourceType,roomname){
             }
         }
         //若市场价低于 priceCanAccept, 就成交
-        if(marketPrice<priceCanAccept){
+        if(marketPrice<=priceCanAccept){
             let needAmount=limitAmount-terminalAmount;
             let dealAmount = needAmount<marketOrders[lowPriceIndex].amount?needAmount:marketOrders[lowPriceIndex].amount;
             console.log("buy:"+resourceType+" price:"+marketPrice+" amount:"+dealAmount);
@@ -117,8 +117,9 @@ global.myDealBuy=function(amount1,price1,amount2,price2,resourceType,roomname){
     if(marketPrice>priceCanAccept){
         let dealAmount = terminalAmount<marketOrders[highPriceIndex].amount?terminalAmount:marketOrders[highPriceIndex].amount;
         if(dealAmount>0){
-            console.log("sell "+resourceType+": price-"+marketPrice+" amount-"+dealAmount);
-            Game.market.deal(marketOrders[highPriceIndex].id,dealAmount,roomname);            
+            if(Game.market.deal(marketOrders[highPriceIndex].id,dealAmount,roomname)==OK){
+                console.log("sell "+resourceType+": price-"+marketPrice+" amount-"+dealAmount);
+            }
         }
     }
 }
