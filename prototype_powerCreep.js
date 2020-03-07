@@ -86,7 +86,7 @@ PowerCreep.prototype.work=function(){
       else if(task==="sourceNeedOperate1"){
           this.operateSource(1);
       }
-      else if(task==="factoryNeedOperate"){
+      else if(task==="factoryNeedOperate"&&this.memory.role=="factoryOperater"){
         if(this.store.ops>=100){
           let factory=this.room.find(FIND_MY_STRUCTURES, {
             filter: { structureType: STRUCTURE_FACTORY }

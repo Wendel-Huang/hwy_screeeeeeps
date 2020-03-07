@@ -11,8 +11,13 @@ var roleUpgrader = {
             var resourceType=creep.room.memory.centerTransferTask[0].resourceType;
             var resourceAmount=creep.room.memory.centerTransferTask[0].amount>creep.store.getCapacity()?creep.store.getCapacity():creep.room.memory.centerTransferTask[0].amount;
             // console.log(creep.withdraw(fromStru,resourceType,resourceAmount ))
-            if(creep.withdraw(fromStru,resourceType,resourceAmount ) == ERR_NOT_IN_RANGE) {
+            let returnValue=creep.withdraw(fromStru,resourceType,resourceAmount );
+            if(returnValue == ERR_NOT_IN_RANGE) {
               creep.moveTo(fromStru, {reusePath: 18});
+            }
+            else if(returnValue==ERR_NOT_ENOUGH_RESOURCES){
+                let centerTransferTask=creep.room.memory.centerTransferTask.shift();
+                creep.room.memory.centerTransferTask.push(centerTransferTask);
             }
           }else{
             for(const resourceType in creep.store) {

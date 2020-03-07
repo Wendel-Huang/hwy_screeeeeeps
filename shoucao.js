@@ -10,5 +10,6 @@ module.exports={
         // }
         // console.log( _.filter(Game.market.orders, (order) => order.resourceType=="O"&&order.remainingAmount>100).length)
         // _.filter(Game.market.orders, (order) => order.resouceType=="O")[0].remainingAmount
+        
     }
 }

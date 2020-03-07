@@ -29,7 +29,7 @@ module.exports = {
                 let terminal=Game.rooms[roomname].terminal;
                 let deposit=["silicon","mist","metal","biomass"];
                 let com0level=["wire","condensate","alloy","cell"];
-                let depoCanAccptPrc=[4,4,4,7];
+                let depoCanAccptPrc=[4,3.5,6,7];
                 for(let i=0;i<deposit.length;i++){
                     if(terminal.store[deposit[i]]<20000&&terminal.store[com0level[i]]<5000){
                         let createAmount=20000-terminal.store[deposit[i]];
@@ -39,8 +39,8 @@ module.exports = {
                 }
             }
             myDealSell(4,20000,"silicon","E1S5");
-            myDealSell(4,20000,"mist","E1S5");
-            myDealSell(4,20000,"metal","E1S5");
+            myDealSell(3.5,20000,"mist","E1S5");
+            myDealSell(6,20000,"metal","E1S5");
             myDealSell(7,20000,"biomass","E1S5");
 
 

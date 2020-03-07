@@ -116,8 +116,10 @@ global.myDealBuy=function(amount1,price1,amount2,price2,resourceType,roomname){
 
     if(marketPrice>priceCanAccept){
         let dealAmount = terminalAmount<marketOrders[highPriceIndex].amount?terminalAmount:marketOrders[highPriceIndex].amount;
-        console.log("sell "+resourceType+": price-"+marketPrice+" amount-"+dealAmount);
-        Game.market.deal(marketOrders[highPriceIndex].id,dealAmount,roomname);
+        if(dealAmount>0){
+            console.log("sell "+resourceType+": price-"+marketPrice+" amount-"+dealAmount);
+            Game.market.deal(marketOrders[highPriceIndex].id,dealAmount,roomname);            
+        }
     }
 }
 
@@ -174,7 +176,7 @@ global.cancelEmptyOrders=function(){
 
 global.spawnDepositWorker=function(depositRoom,giveRoom,spawnName){
     if(!Game.spawns[spawnName].spawning&&_.filter(Game.creeps, (creep) => creep.memory.role == 'transferD'&&creep.memory.withdrawroom==depositRoom).length<1){
-        Game.spawns[spawnName].mySpawnCreep([0,4,4], 'TS '+Game.time+depositRoom,
+        Game.spawns[spawnName].mySpawnCreep([0,10,10], 'TS '+Game.time+depositRoom,
         {memory: {role: 'transferD',withdrawroom:depositRoom,giveroom:giveRoom}});
         console.log(depositRoom+" found Deposit, prepare to spawn transferD at "+giveRoom);
     }

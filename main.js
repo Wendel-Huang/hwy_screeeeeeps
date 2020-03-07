@@ -1,6 +1,3 @@
-// let actionCounter = require('actionCounter')
-// actionCounter.warpActions();
-
 var roleHarvester = require('role.harvester');
 var roleHarvesterD = require('role.harvesterD');
 var roleUpgrader = require('role.upgrader');
@@ -31,6 +28,7 @@ var roleRepairer=require('role.repairer')
 var roleCenterTransfer=require('role.centerTransfer')
 var roleBigHarvester=require('role.bigHarvester')
 var roleFiller=require('role.filler')
+var roleSigner=require('role.signer')
 
 var W2S2=require('W2S2main')
 var E5S2=require('E5S2main')
@@ -51,24 +49,11 @@ require('prototype_terminal')
 require('prototype_lab')
 require('structureCache')
 
-
-// let actionCounter = require('actionCounter')
-// actionCounter.warpActions();
-
-// window.onkeyup = keyf;
-
-// function keyf (e) {
-//     var e = e || window.event;  //标准化事件处理
-//     var s = e.type + " " + e.keyCode;  //获取键盘事件类型和按下的值
-//     console.log(s)
-//     alert(s)
-// }
-
 //observer
-var roomArray=['E0N0','E1N0','E2N0','E3N0','E4N0','E5N0','E6N0','E7N0','E8N0','E9N0','E10N0','E0S0','E1S0','E2S0','E3S0','E4S0','E5S0','E6S0','E7S0','E8S0','E9S0','E10S0','E10S1','E10S2'
+var roomArray=['E0N0','E1N0','E2N0','E3N0','E4N0','E5N0','E6N0','E7N0','E8N0','E9N0','E10N0','E0S0','E1S0','E2S0','E3S0','E4S0','E5S0','E6S0','E7S0','E8S0','E9S0','E10S0','E10S1','E10S2','E10S3'
 ,'E0S1','E0S2','E0S3','E0S4','E0S5','E0S6','E0S7','E0S8','E0S9','W0S1','W0S2','W0S3','W0S4','W0S5','W0S6','W0S7','W0S8','W0S9'
 ,'W4N0','W3N0','W2N0','W4S0','W3S0','W2S0'];
-var roomArrayE5S1=['E0N0','E1N0','E2N0','E3N0','E4N0','E5N0','E6N0','E7N0','E8N0','E9N0','E10N0','E0S0','E1S0','E2S0','E3S0','E4S0','E5S0','E6S0','E7S0','E8S0','E9S0','E10S0','E10S1','E10S2'];
+var roomArrayE5S1=['E0N0','E1N0','E2N0','E3N0','E4N0','E5N0','E6N0','E7N0','E8N0','E9N0','E10N0','E0S0','E1S0','E2S0','E3S0','E4S0','E5S0','E6S0','E7S0','E8S0','E9S0','E10S0','E10S1','E10S2','E10S3'];
 var roomArrayE1S5=['E0S1','E0S2','E0S3','E0S4','E0S5','E0S6','E0S7','E0S8','E0S9','W0S1','W0S2','W0S3','W0S4','W0S5','W0S6','W0S7','W0S8','W0S9'];
 var roomArrayW2S2=['W4N0','W3N0','W2N0','W4S0','W3S0','W2S0'];
 
@@ -76,6 +61,11 @@ if(!Memory.factory) Memory.factory={};
 if(!Memory.share) Memory.share={};
 
 module.exports.loop = function () {
+    // mainLoop();
+}
+
+
+function mainLoop(){
     // actionCounter.init();
 
     // startup1.run('E1S5')
@@ -495,6 +485,9 @@ module.exports.loop = function () {
         else if (creep.memory.role=='filler') {
             roleFiller.run(creep);
         }
+        else if (creep.memory.role=='signer') {
+            roleSigner.run(creep);
+        }
     }
 
     // Game.structures['5e113c037b3e97757dff5fe5'].work();
@@ -516,9 +509,9 @@ module.exports.loop = function () {
         }
         else if(mystructure.structureType==STRUCTURE_TERMINAL){
             mystructure.handleFacComponentTask();
-            mystructure.handleShare();
-            if(Game.time%5==0){
+            if(Game.time%13==0){
               mystructure.terStoBalance();
+              mystructure.handleShare();
             }
         }
         // else if(mystructure.structureType==STRUCTURE_LAB){

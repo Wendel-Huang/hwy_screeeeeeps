@@ -5,9 +5,6 @@ Room.prototype.addFacComponentTask=function(resouceType,amount){
 	}
 }
 
-Room.prototype.deleteFacComponentTask=function(resouceType){
-	delete this.memory.facComponentTask[resouceType];
-}
 
 Room.prototype.addCenterTask=function(task){
 	//初始化数组
